@@ -31,6 +31,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.Bed;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MinecraftnoBlockListener implements Listener {
@@ -161,17 +162,17 @@ public class MinecraftnoBlockListener implements Listener {
                 event.setCancelled(true);
                 return;
             } else {
-                if (down != null) {
+                if (down != null) {                	
                     int downOwnerId = this.blockinfoHandler.getOwnerId(down);
-                    if ((down.getType() == Material.WOODEN_DOOR) || (down.getType() == Material.IRON_DOOR_BLOCK)) {
+                    if (down.getType() == Material.DOUBLE_PLANT || down.getType() == Material.WOODEN_DOOR || down.getType() == Material.IRON_DOOR_BLOCK) {
                         // Private item?
-                        if (this.privateHandler.handlePrivateBlockBreak(down, player)) {
+                        if (this.privateHandler.handlePrivateBlockBreak(down, player) && down.getType() != Material.DOUBLE_PLANT) {
                             event.setCancelled(true);
                             return;
                         } else {
                             if ((downOwnerId != 0) && (downOwnerId != this.userHandler.getUserId(player))) {
                                 int groupIdBlock = this.groupHandler.getGroupIDFromUserId(downOwnerId);
-                                if ((groupId != 0) && groupId != groupIdBlock) {
+                                if (groupId == 0 || groupId != groupIdBlock) {
                                     event.setCancelled(true);
                                     player.sendMessage(ChatColor.RED + this.userHandler.getNameFromId(downOwnerId) + " eier blokken over som er beskyttet.");
                                     return;
