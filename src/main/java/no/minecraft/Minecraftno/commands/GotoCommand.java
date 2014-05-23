@@ -24,7 +24,7 @@ public class GotoCommand extends MinecraftnoCommand {
                 if (wcfg.restrictWorldXYZ) {
                     x = clampValue(Double.parseDouble(args[0]), wcfg.restrictWorldXminus, wcfg.restrictWorldXpluss);
                     //Pass på at brukeren ikke teleporterer over eller under verden.
-                    y = clampValue(Double.parseDouble(args[1]), 1.0, 128.0);
+                    y = clampValue(Double.parseDouble(args[1]), 1.0, 256.0);
                     z = clampValue(Double.parseDouble(args[2]), wcfg.restrictWorldZminus, wcfg.restrictWorldZpluss);
 
                     Location l = player.getLocation();
