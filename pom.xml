@@ -1,0 +1,115 @@
+<project>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>no.minecraft</groupId>
+    <artifactId>Minecraftno</artifactId>
+    <version>2.6.1-SNAPSHOT</version>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <organization>
+        <name>Minecraft.no</name>
+        <url>http://www.minecraft.no/</url>
+    </organization>
+
+    <developers>
+        <developer>
+            <id>tjnome</id>
+            <name>Terje Nomedal</name>
+            <email>tjnome@gmail.com</email>
+        </developer>
+
+        <developer>
+            <id>ventrec</id>
+            <name>Runar Jørgensen</name>
+            <email>ventrec@ventrec.org</email>
+        </developer>
+
+        <developer>
+            <id>thypthon</id>
+            <name>Edvin Hultberg</name>
+            <email>edvin.andre@gmail.com</email>
+        </developer>
+
+        <developer>
+            <id>jckf</id>
+            <name>Jim C K Flaten</name>
+            <email>jckf@jckf.no</email>
+        </developer>
+    </developers>
+
+    <repositories>
+        <repository>
+            <id>bukkit-repo</id>
+            <url>http://repo.bukkit.org/content/groups/public</url>
+        </repository>
+
+        <repository>
+            <id>sk89q-repo</id>
+            <url>http://maven.sk89q.com/repo</url>
+
+            <snapshots><checksumPolicy>ignore</checksumPolicy></snapshots>
+            <releases><checksumPolicy>ignore</checksumPolicy></releases>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.bukkit</groupId>
+            <artifactId>bukkit</artifactId>
+            <version>1.7.2-R0.3-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sk89q</groupId>
+            <artifactId>worldedit</artifactId>
+            <version>5.6-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.4</version>
+		</dependency>
+    </dependencies>
+
+    <build>
+        <defaultGoal>clean install</defaultGoal>
+
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main/resources</directory>
+                <filtering>true</filtering>
+                <targetPath>.</targetPath>
+
+                <includes>
+                    <include>plugin.yml</include>
+                </includes>
+            </resource>
+
+            <resource>
+                <directory>${basedir}/src/main/resources</directory>
+                <targetPath>.</targetPath>
+
+                <includes>
+                    <include>config.yml</include>
+                </includes>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

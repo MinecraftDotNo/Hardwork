@@ -1,0 +1,21 @@
+# Minecraftno configuration file.
+# See the comments in the default config inside the jar for
+# more information.
+
+backup: # Backup routines.
+  log:
+    directory: log # Directory to store backups in.
+    max_size: 2048 # Run backup when log reaches this size, in kilobytes.
+    max_age: 14    # Number of days to keep backups.
+
+whitelist: # Whitelist toggling on plugin enable and disable.
+  on_enable:
+    toggle: true # Change whitelist setting?
+    state: false # What to change it to.
+  on_disable:
+    toggle: true
+    state: true
+  message: Serveren restarter.. # Message sent to players on disable if whitelist is being enabled.
+
+irc:
+  nickserv_password: abc123

@@ -1,0 +1,374 @@
+name: ${project.name}
+main: ${project.groupId}.Minecraftno.Minecraftno
+version: ${project.version}
+
+description: ${project.organization.name} plugin
+authors: ['tjnome', 'ventrec', 'Jckf', 'Thypthon']
+website: ${project.organization.url}
+
+softdepend: [WorldEdit]
+
+commands:
+  ban:
+    description: Banner valgt bruker.
+    usage: /<command> [navn] [grunnlag]
+
+  ukesban:
+    description: Setter ukesban på spiller.
+    usage: /<command> [navn] [grunn]
+
+  kill:
+    description: Skrudd av
+    usage: /<command>
+
+  kick:
+    description: Kicker valgt bruker.
+    usage: /<command> [navn] [grunnlag]
+
+  setwarp:
+    description: Setter warp der du står.
+    usage: /<command> [navn]
+
+  warp:
+    description: Flytter deg til angitt sted.
+    usage: /<command> [navn]
+
+  privat:
+    description: Legg/fjern privat kister/dorer.
+    usage: /<command> [sett/fjern]
+
+  msg:
+    aliases:
+      - m
+      - tell
+    description: Sender en melding til valgt bruker.
+    usage: /<command> [navn] [melding]
+
+  who:
+    aliases:
+      - list
+    description: Viser påloggede spillere.
+    usage: /<command> [navn]
+
+  tp:
+    description: Teleporterer deg til valgt bruker.
+    usage: /<command> [navn]
+
+  tphere:
+    aliases:
+      - tph
+    description: Teleporterer valgt bruker til deg.
+    usage: /<command> [navn]
+
+  spawn:
+    description: Sender deg til spawn.
+    usage: /<command>
+
+  setspawn:
+    description: Setter ny spawn.
+    usage: /<command>
+
+  gr:
+    description: Gruppekommando.
+    usage: /<command> [hoved/trade/ann/irc/gruppe/ on/off]
+
+  g:
+    description: Sender en melding til gruppen din.
+    usage: /<command> [melding/off/on]
+
+  c:
+    description: Sender en melding til kun stab/vakt.
+    usage: /<command> [melding/off/on]
+
+  give:
+    aliases:
+      - i
+      - item
+    description: Gir deg en item.
+    usage: /<command> [id(:damage)] [antall]
+
+  stuck:
+    aliases:
+      - s
+    description: Flytter deg til høyeste punkt over deg.
+    usage: /<command>
+
+  hjelp:
+    aliases:
+      - h
+      - help
+    description: Denne listen.
+    usage: /<command>
+
+  invisible:
+    aliases:
+      - inv
+    description: Usynlighet
+    usage: /<command> [on/off]
+
+  bc:
+    description: Sender en viktig melding til brukerne.
+    usage: /<command> [tekst]
+
+  goto:
+    description: Teleporterer deg til de angitte koordinatene.
+    usage: /<command> [x] [y] [z] ([f])
+
+  ci:
+    description: Fjerner alt du har i inventory.
+    usage: /<command>
+
+  lok:
+    description: Gir deg din lokasjon.
+    usage: /<command>
+
+  warps:
+    aliases:
+      - listWarps
+    description: Lister tilgjengelige warps.
+    usage: /<command>
+
+  bank:
+    description: Banksystemet
+    usage: /<command> [kommando]
+
+  add:
+    description: Gir byggetillatelse til en spiller
+    usage: /<command> [spiller]
+
+  del:
+    description: Fjerner byggetillatelsen til en spiller
+    usage: /<command> [spiller]
+
+  unban:
+    description: Unbanner valgt bruker
+    usage: /<command> [spiller]
+
+  mod:
+    description: Endrer brukerstatus på gitte bruker
+    usage: /<command> [spiller] [brukerstatus]
+
+  home:
+    description: Sender deg til home
+    usage: /<command>
+
+  sethome:
+    description: Setter din home location
+    usage: /<command>
+
+  delwarp:
+    description: Sletter gitt warp
+    usage: /<command> [navn]
+
+  reg:
+    description: Viser informasjon om registrering
+    usage: /<command>
+
+  rules:
+    description: Viser reglene som gjelder på serveren
+    usage: /<command>
+
+  warn:
+    aliases:
+      - w
+      - advar
+    description: Setter advarsel på bruker
+    usage: /<command> [navn] [grunnlag]
+
+  listwarnings:
+    aliases:
+      - lw
+      - advarsler
+    description: Lister advarsler for bruker
+    usage: /<command>
+
+  work:
+    description: Veksler mellom vanlig- og arbeidsmodus
+    usage: /<command>
+
+  world:
+    description: Teleporterer deg til den vanlige verden
+    usage: /<command>
+
+  itemarmor:
+    description: Gir deg kul rustning
+    usage: /<command> [material] [slot]
+
+  mount:
+    description: Setter deg som passasjer på spiller
+    usage: /<command> [spiller]
+
+  tooldata:
+    aliases:
+      - td
+    description: Setter verktøy-data
+    usage: /<command> [spillernavn]
+
+  setareabp:
+    aliases:
+      - protect
+      - protectarea
+      - pa
+      - beskytt
+      - beskyttområde
+      - bo
+    description: Sett blokkbeskyttelse i område valgt med WorldEdit
+    usage: /<command> [spillernavn] <blockID>
+
+  unprotectarea:
+    aliases:
+      - unprotect
+      - up
+      - fjernbeskyttelse
+      - fb
+    description: Fjerner blokkbeskyttelse i område valgt med WorldEdit
+    usage: /<command> <spillernavn> <blockID>
+
+  saveplayerdata:
+    description: Lagrer alles spillerdata. (for backup-skript)
+    usage: /<command>
+
+  mute:
+    description: Mute valgt bruker.
+    usage: /<command> [navn]
+
+  t:
+    description: t on/off/melding
+    usage: /<command> [on/off/melding] 
+
+  r:
+    description: Sende melding til siste /msg eller låse den til siste melding lock/unlock
+    usage: /<command> [melding]
+
+  freeze:
+    description: fryse spilleren
+    usage: /<command> [navn]
+
+  chat:
+    description: Du får chat info
+    usage: /<command> [on/off/info]
+
+  tid:
+    aliases:
+      - time
+    description: Du kan forandre din lokaltid
+    usage: /<command> [dag/natt/morgen/kveld/info/normal]
+
+  me:
+    description: Nothing.
+    usage: /<command> [navn]
+
+  tips:
+    description: Sender en tips melding til brukerne.
+    usage: /<command> [tekst]
+
+  xp:
+    description: viser xp til brukerne.
+    usage: /<command>
+
+  openinv:
+    description: viser inventorien til andre.
+    usage: /<command> [navn]
+
+  mobspawn:
+    description: Spawne valgfritt mob.
+    usage: /<command> [navn] [antall]
+
+  mode:
+    description: Bytte mode på bruker.
+    usage: /<command>
+
+  nodrop:
+    description: fjerne drops.
+    usage: /<command>
+
+  back:
+    description: Teleportere deg tilbake til din forrige lokasjon.
+    usage: /<command>
+
+  ram:
+    description: Gir deg detalje om minne.
+    usage: /<command>
+
+  gadm:
+    description: Stab/Vakt kommandoer for grupper.
+    usage: /<command>
+
+  cms:
+    description: Endrer typen mob-spawner du ser på.
+    usage: /<command> <list> | [type]
+
+  seteffect:
+    description: Setter valgt effekt på en spiller.
+    aliases:
+      - seteff
+    usage: /<command> [spiller] [effekt]
+
+  allowfly:
+    description: Setter flymodus på deg selv.
+    aliases:
+      - fly
+    usage: /<command>
+
+  mworld:
+    description: In development.
+    usage: /<command>
+
+  annonsering:
+    description: Sette opp en annonsering som kommer hvert valgfritt min.
+    aliases:
+      - ann
+    usage: /<command> [tid i min] [melding]
+             /<command> [fjern]
+
+  warning:
+    aliases:
+      - advarsl
+    description: Lister advarsler og slette advarsler.
+    usage: /<command> [remove] [playername] [id]
+             /<command> [playername]
+
+  filter:
+    description: In development.
+    usage: /<command>
+
+  srvinfo:
+    description: Gir deg server informasjon.
+    usage: /<command>
+
+  gwarps:
+    description: Returnerer alle graveområdene
+    usage: /<command>
+
+  setgwarp:
+    description: Lager nytt graveområde der du står.
+    usage: /<command> [navn]
+
+  gwarp:
+    description: Flytter deg til angitt graveområde.
+    usage: /<command> [navn]
+
+  delgwarp:
+    description: Sletter gitt graveområde
+    usage: /<command> [navn]
+
+  sandtak:
+    description: Benyttes i forbindelse med sandtak
+    usage: /<command>
+
+  hest:
+    description: Kjop hester med denne kommandoen.
+    usage: /<command>
+
+  nametag:
+    description: Kjop en nametag
+    usage: /<command> [onsket navn]
+
+  nisse:
+    description: Gir deg nissetag i desember.
+    usage: /<command>
+
+  minecart:
+    description: Gir deg en minecart i din inventory.
+    usage: |
+           /<command>
