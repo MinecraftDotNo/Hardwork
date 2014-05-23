@@ -488,6 +488,9 @@ public class MinecraftnoPlayerListener implements Listener {
                                 if (!l.getWorld().generateTree(l, tt)) {
                                     block.setType(Material.SAPLING);
                                     block.setData(ts.getData());
+                                } else {
+                                    /* Remove bonemeal from player */
+                                    player.getInventory().removeItem(new ItemStack(Material.INK_SACK, 1, (short)15));
                                 }
                             }
                         }
