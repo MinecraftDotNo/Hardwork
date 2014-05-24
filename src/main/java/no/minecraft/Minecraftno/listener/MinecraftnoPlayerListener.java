@@ -273,7 +273,7 @@ public class MinecraftnoPlayerListener implements Listener {
             }
         }
     }
-
+    @SuppressWarnings("deprecation")
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
@@ -304,6 +304,7 @@ public class MinecraftnoPlayerListener implements Listener {
         if (!wcfg.itemDurability) {
             if (cfg.noDamageTools.contains(event.getPlayer().getItemInHand().getTypeId())) {
                 event.getPlayer().getItemInHand().setDurability((short) -200);
+                player.updateInventory();
             }
         }
 
