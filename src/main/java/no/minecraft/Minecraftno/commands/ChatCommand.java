@@ -23,7 +23,7 @@ public class ChatCommand extends MinecraftnoCommand {
         if (args.length == 0 || (args.length == 1 && args[0].equalsIgnoreCase("info"))) {
             player.sendMessage(getCommandChatColor() + "Informasjon over hva chat funksjoner er aktivert");
             if ((this.userHandler.getAccess(player) >= 3)) {
-                player.sendMessage(getOkChatColor() + "Stab/Vakt chaten er " + (this.userHandler.getAdminChatBind(player) ? "aktivert" : "deaktivert"));
+                player.sendMessage(getOkChatColor() + "Stab/Vakt chaten er " + (this.userHandler.hasAdminChatActivated(player) ? "aktivert" : "deaktivert"));
             }
             player.sendMessage(getOkChatColor() + "Auto gruppechat er " + (this.userHandler.getGroupChatBind(player) ? "aktivert" : "deaktivert"));
             player.sendMessage(getOkChatColor() + "Hovedchat er " + (this.userHandler.getHovedChat(player) ? "aktivert" : "deaktivert"));

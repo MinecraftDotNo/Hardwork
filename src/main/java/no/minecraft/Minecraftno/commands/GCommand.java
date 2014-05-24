@@ -24,14 +24,9 @@ public class GCommand extends MinecraftnoCommand {
             if (args.length > 0) {
                 if (args[0].equalsIgnoreCase("on")) {
                     if (!(this.userHandler.getGroupChatBind(player))) {
-                        if (!(this.userHandler.getAdminChatBind(player))) {
-                            this.userHandler.setGroupChatBind(player, true);
-                            player.sendMessage(getOkChatColor() + "Gruppechat aktivert");
-                            return true;
-                        } else {
-                            player.sendMessage(getErrorChatColor() + "Du kan ikke aktivere gruppechat når du har aktivert Stab/vakt chat.");
-                            return true;
-                        }
+                        this.userHandler.setGroupChatBind(player, true);
+                        player.sendMessage(getOkChatColor() + "Gruppechat aktivert");
+                        return true;
                     } else {
                         player.sendMessage(getOkChatColor() + "Du har allerede aktivert gruppechat.");
                         return true;
