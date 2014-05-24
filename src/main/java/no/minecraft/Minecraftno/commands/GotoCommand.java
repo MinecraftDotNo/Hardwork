@@ -22,12 +22,12 @@ public class GotoCommand extends MinecraftnoCommand {
                 ConfigurationServer cfg = this.plugin.getGlobalConfiguration();
                 ConfigurationWorld wcfg = cfg.get(player.getWorld());
                 if (wcfg.restrictWorldXYZ) {
+                    Location l = player.getLocation();
+                    
                     x = clampValue(Double.parseDouble(args[0]), wcfg.restrictWorldXminus, wcfg.restrictWorldXpluss);
                     //Pass på at brukeren ikke teleporterer over eller under verden.
-                    y = clampValue(Double.parseDouble(args[1]), 1.0, 256.0);
+                    y = clampValue(Double.parseDouble(args[1]), 1.0, l.getWorld().getMaxHeight());
                     z = clampValue(Double.parseDouble(args[2]), wcfg.restrictWorldZminus, wcfg.restrictWorldZpluss);
-
-                    Location l = player.getLocation();
 
                     if (args.length < 4 || (args.length == 4 && !args[3].equalsIgnoreCase("f"))) {
                         //Put us at the middle of the block
