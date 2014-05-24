@@ -274,7 +274,7 @@ public class ChatHandler {
     public final void sendVaktStabMessage(Player player, String msg) {
         sendIRCMessage(player, "#hardwork.styret", msg);
         for (Entry<Player, PlayerData> entry : this.userHandler.getOnlineUsers().entrySet()) {
-            if (entry.getValue().getAccessLevel() >= 2 && entry.getValue().getAdminChatBind()) {
+            if (entry.getValue().getAccessLevel() >= 2 && !entry.getValue().hasAdminChatDeactivated()) {
                 entry.getKey().sendMessage("(" + ChatColor.GOLD + "Stab" + ChatColor.WHITE + "/" + ChatColor.BLUE + "Vakt" + ChatColor.WHITE + ") (" + player.getName() + ") " + nameHighlight(entry.getKey(), msg, null));
             }
         }

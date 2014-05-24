@@ -22,21 +22,19 @@ public class CCommand extends MinecraftnoCommand {
     public final boolean onPlayerCommand(Player player, Command command, String label, String[] args) {
         if (args.length >= 1) {
             if (args[0].equalsIgnoreCase("on")) {
-                if (!(this.userHandler.getAdminChatBind(player))) {
-                    if (!(this.userHandler.getGroupChatBind(player))) {
-                        this.userHandler.setAdminChatBind(player, true);
-                        player.sendMessage(getOkChatColor() + "Stab/vakt chat aktivert.");
-                    } else {
-                        player.sendMessage(getErrorChatColor() + "Du kan ikke aktivere Stab/vakt når group chat er aktivert.");
-                    }
-                } else {
-                    player.sendMessage(getOkChatColor() + " Du har allerede aktivert Stab/vakt chat.");
-                }
+            	if (!(this.userHandler.hasAdminChatActivated(player))) {
+            		this.userHandler.setAdminChatDeactivated(player, false);
+                    player.sendMessage(getOkChatColor() + "Stab/Vakt chat er aktivert.");
+            	} else {
+            		player.sendMessage(getErrorChatColor() + "Stab/Vakt chat er allerede aktivtert.");
+            	}
             } else if (args[0].equalsIgnoreCase("off")) {
-                if (this.userHandler.getAdminChatBind(player)) {
-                    this.userHandler.setAdminChatBind(player, false);
-                    player.sendMessage(getOkChatColor() + " Stab/vakt deaktivert.");
-                }
+            	if (this.userHandler.hasAdminChatActivated(player)) {
+            		this.userHandler.setAdminChatDeactivated(player, true);
+                    player.sendMessage(getOkChatColor() + "Stab/Vakt chat er deaktivert.");
+            	} else {
+            		player.sendMessage(getErrorChatColor() + "Stab/Vakt chat er allerede deaktivtert.");
+            	}
             } else {
                 StringBuilder build = new StringBuilder();
                 for (int i = 0; i < args.length; i++) {

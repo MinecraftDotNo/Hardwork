@@ -838,6 +838,8 @@ public class MinecraftnoPlayerListener implements Listener {
 
         this.userHandler.addPlayer(player);
         int access = this.userHandler.getAccess(player);
+        
+        System.out.println(this.userHandler.hasAdminChatActivated(player));
 
         for (String msg : cfg.srvLogin) {
             player.sendMessage(msg);

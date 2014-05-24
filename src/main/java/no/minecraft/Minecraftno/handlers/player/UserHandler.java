@@ -986,12 +986,12 @@ public class UserHandler {
         this.onlineUsers.get(player).setGroupChatBind(groupchatbind);
     }
 
-    public boolean getAdminChatBind(Player player) {
-        return this.onlineUsers.get(player).getAdminChatBind();
+    public boolean hasAdminChatActivated(Player player) {
+        return !this.onlineUsers.get(player).hasAdminChatDeactivated();
     }
 
-    public void setAdminChatBind(Player player, boolean adminchatbind) {
-        this.onlineUsers.get(player).setAdminChat(adminchatbind);
+    public void setAdminChatDeactivated(Player player, boolean adminchat) {
+        this.onlineUsers.get(player).setAdminChatDeactivated(adminchat);
     }
 
     public boolean getTradeChat(Player player) {

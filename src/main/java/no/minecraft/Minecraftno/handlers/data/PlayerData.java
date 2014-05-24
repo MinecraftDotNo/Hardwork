@@ -23,7 +23,7 @@ public class PlayerData implements Serializable {
     private boolean freeze = false;
     private boolean invisible = false;
     private boolean groupchatbind = false;
-    private boolean adminchatbind = false;
+    private boolean adminchatdeactivated = false;
     private boolean tradechat = true;
     private boolean hovedchat = true;
     private boolean annonseringer = true;
@@ -138,12 +138,12 @@ public class PlayerData implements Serializable {
         this.groupchatbind = groupchatbind;
     }
 
-    public boolean getAdminChatBind() {
-        return adminchatbind;
+    public boolean hasAdminChatDeactivated() {
+        return adminchatdeactivated;
     }
 
-    public void setAdminChat(boolean adminchatbind) {
-        this.adminchatbind = adminchatbind;
+    public void setAdminChatDeactivated(boolean adminchat) {
+        this.adminchatdeactivated = adminchat;
     }
 
     public boolean getTradeChat() {
