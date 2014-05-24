@@ -197,11 +197,8 @@ public class ChatHandler {
     }
 
     private boolean isChatLock(Player player, String msg) {
-        if (this.userHandler.getAdminChatBind(player)) {
-            sendVaktStabMessage(player, msg);
-            return true;
-        } else if (this.userHandler.getLastMsgLock(player) != null) {
-            Player target = this.plugin.playerMatch(this.userHandler.getLastMsgLock(player));
+        if (this.userHandler.getLastMsgLock(player) != null) {
+        	Player target = this.plugin.playerMatch(this.userHandler.getLastMsgLock(player));
             if (target != null) {
                 sendPrivatMessage(player, target, msg);
                 return true;
