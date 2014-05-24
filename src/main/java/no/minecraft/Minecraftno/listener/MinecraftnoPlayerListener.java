@@ -277,24 +277,19 @@ public class MinecraftnoPlayerListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
+        ItemStack itemInHand = player.getItemInHand();
         Block block = event.getClickedBlock();
         ConfigurationServer cfg = this.plugin.getGlobalConfiguration();
         ConfigurationWorld wcfg = cfg.get(player.getWorld());
 
-        if (player.getItemInHand().getType() == Material.FIREBALL) {
-            // Mideltidlig.
-            event.setCancelled(true);
-            return;
-        }
-
-        if (player.getItemInHand().getType() == Material.TNT) {
+        if (itemInHand.getType() == Material.FIREBALL || itemInHand.getType() == Material.TNT) {
             // Mideltidlig.
             event.setCancelled(true);
             return;
         }
 
         if (!player.isSneaking() && event.getAction() != Action.PHYSICAL && wcfg.allowUseCompass) {
-            if (player.getItemInHand().getType() == Material.COMPASS) {
+            if (itemInHand.getType() == Material.COMPASS) {
                 useCompass(player);
                 event.setCancelled(true);
                 return;
@@ -302,8 +297,8 @@ public class MinecraftnoPlayerListener implements Listener {
         }
 
         if (!wcfg.itemDurability) {
-            if (cfg.noDamageTools.contains(event.getPlayer().getItemInHand().getTypeId())) {
-                event.getPlayer().getItemInHand().setDurability((short) -200);
+            if (cfg.noDamageTools.contains(itemInHand.getTypeId())) {
+                itemInHand.setDurability((short) -200);
                 player.updateInventory();
             }
         }
