@@ -314,6 +314,8 @@ public class MinecraftnoEntityListener implements Listener {
             event.setCancelled(true);
         } else if (type == EntityType.BAT && !wcfg.bats) {
             event.setCancelled(true);
+        } else if (type == EntityType.MAGMA_CUBE && !wcfg.magmaCube) {
+            event.setCancelled(true);
         }
     }
 

@@ -106,6 +106,7 @@ public class ConfigurationWorld {
     public boolean wither;
     public boolean witch;
     public boolean bats;
+	public boolean magmaCube;
 
     public boolean supercreepers;
 
@@ -195,6 +196,7 @@ public class ConfigurationWorld {
         this.configDefaults.put("Mobs.Wither", false);
         this.configDefaults.put("Mobs.Witch", false);
         this.configDefaults.put("Mobs.Bats", false);
+        this.configDefaults.put("Mobs.MagmaCube", false);
 
         //Entities
         this.configDefaults.put("Entities.MaxEntities", 200);
@@ -343,6 +345,7 @@ public class ConfigurationWorld {
         this.wither = config.getBoolean("Mobs.Wither");
         this.witch = config.getBoolean("Mobs.Witch");
         this.bats = config.getBoolean("Mobs.Bats");
+        this.magmaCube = config.getBoolean("Mobs.MagmaCube");
 
         //Entities
         this.MaxEntities = config.getInt("Entities.MaxEntities");
