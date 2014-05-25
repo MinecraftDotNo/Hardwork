@@ -28,6 +28,8 @@ public class PlayerData implements Serializable {
     private boolean hovedchat = true;
     private boolean annonseringer = true;
     private boolean irc = true;
+    
+    private String uuid;
 
     //Location
     private HashMap<Integer, LocationData> location = new HashMap<Integer, LocationData>();
@@ -300,5 +302,23 @@ public class PlayerData implements Serializable {
      */
     public int getOldGroupID() {
         return this.oldGroupID;
+    }
+    
+    /**
+     * Returns cached UUID of player.
+     * @return string
+     */
+    public String getCachedUUID()
+    {
+    	return uuid;
+    }
+    
+    /**
+     * Set new cached UUID of player.
+     * @param newuuid
+     */
+    public void setCachedUUID(String newuuid)
+    {
+    	this.uuid = newuuid;
     }
 }

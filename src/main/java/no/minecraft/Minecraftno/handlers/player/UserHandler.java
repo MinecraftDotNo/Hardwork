@@ -61,12 +61,15 @@ public class UserHandler {
     }
 
     public void addPlayer(Player p) {
-        int id = getUserId(p.getName());
-        if (id == -1) {
+        updatePlayer(p);
+    	
+        if (!userExists(p)) {
             // Hvis brukeren ikke eksisterer i databasen, blir
             // den opprettet.
             addUser(p, true);
         } else {
+
+        	int id = getUserIdByUUID(p.getUniqueId().toString());
             addPlayer(p, getAccessFromDB(p), this.groupHandler.getGroupIDFromUserId(id), id);
         }
     }
@@ -75,7 +78,7 @@ public class UserHandler {
         if (!(this.onlineUsers.isEmpty())) {
             try {
                 for (Player p : this.onlineUsers.keySet()) {
-                    SavedObject.save(this.onlineUsers.get(p), new File(this.plugin.getDataFolder() + "/players/", p.getName()));
+                    SavedObject.save(this.onlineUsers.get(p), new File(this.plugin.getDataFolder() + "/players/", p.getUniqueId().toString()));
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -88,7 +91,7 @@ public class UserHandler {
         updatePlayer(p, 1);
         if (!(this.onlineUsers.isEmpty())) {
             try {
-                SavedObject.save(this.onlineUsers.get(p), new File(this.plugin.getDataFolder() + "/players/", p.getName()));
+                SavedObject.save(this.onlineUsers.get(p), new File(this.plugin.getDataFolder() + "/players/", p.getUniqueId().toString()));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -107,6 +110,68 @@ public class UserHandler {
             this.regUsers.remove(player);
         }
     }
+    
+    /**
+     * Because mojang will allow name changing soon,
+     * this function will then update name in database if its different.
+     * That means rest of the plugin will work as before.
+     * @param p
+     */
+    public void updatePlayer(Player p)
+    {
+    	// Update UUID in db (in case it's not set)
+    	updatePlayerUUID(p);
+    	
+    	String dbName = this.sqlHandler.getColumn("SELECT `name` FROM `Minecraftno`.`users` WHERE `uuid` = '" + p.getUniqueId().toString() + "'");
+    	
+    	if (dbName == null) {
+    		return; // User not registered.
+    	}
+    	
+    	if (!(p.getName().equalsIgnoreCase(dbName))) {        	
+        	this.sqlHandler.update("UPDATE `Minecraftno`.`users` SET `name` = '" + p.getName() + "' WHERE `uuid` = '" + p.getUniqueId().toString() + "'");
+        	
+        	/* Put name change (if there is one) */
+        	this.sqlHandler.update("INSERT INTO `Minecraftno`.`name_history`(uuid, old_name, new_name)" +
+        			"VALUES('"+p.getUniqueId().toString()+"', '"+dbName+"', '"+p.getName()+"')");
+    	}
+    	
+    	/* Update name of player file if it exists with nick */
+    	File search = new File(plugin.getDataFolder() + "/players/", dbName);
+    	if (search.exists()) {
+    		search.renameTo(new File(plugin.getDataFolder() + "/players/", p.getUniqueId().toString()));
+    	}
+    }
+    
+    /**
+     * Because mojang will allow name changing soon,
+     * this function will then update name in database if its different.
+     * That means rest of the plugin will work as before.
+     * @param p
+     */
+    public void updatePlayerUUID(Player p)
+    {
+    	String dbName = this.sqlHandler.getColumn("SELECT `uuid` FROM `Minecraftno`.`users` WHERE `name` = '" + p.getName() + "'");
+    	
+    	if (dbName == null) {
+    		return; // User not registered.
+    	}
+    	
+    	if (dbName.equalsIgnoreCase("ingen")) {        	
+        	this.sqlHandler.update("UPDATE `Minecraftno`.`users` SET `uuid` = '" + p.getUniqueId().toString() + "' WHERE `name` = '"+p.getName()+"'");
+    	}
+    }
+    
+    /**
+     * Uses UUID of player to check if user exists in users table.
+     * @param p Player
+     * @return boolean
+     */
+    public boolean userExists(Player p)
+    {
+    	String uuid = this.sqlHandler.getColumn("SELECT `uuid` FROM `Minecraftno`.`users` WHERE `name` = '" + p.getName() + "'");
+    	return uuid != null;
+    }
 
     public boolean isRegPlayer(Player player) {
         return this.regUsers.contains(player);
@@ -121,7 +186,7 @@ public class UserHandler {
         pd.setUserId(userId);
         if (new File(this.plugin.getDataFolder() + "/players/", p.getName()).exists()) {
             try {
-                this.onlineUsers.put(p, (PlayerData) SavedObject.load(new File(this.plugin.getDataFolder() + "/players/", p.getName())));
+                this.onlineUsers.put(p, (PlayerData) SavedObject.load(new File(this.plugin.getDataFolder() + "/players/", p.getUniqueId().toString())));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -464,7 +529,8 @@ public class UserHandler {
         if (firstTime) {
             accessLevel = 0;
             //addPlayer(player, accessLevel);
-            if (sqlHandler.update("REPLACE INTO Minecraftno.users (`name`) VALUES ('" + player.getName() + "')")) {
+            
+            if (sqlHandler.update("REPLACE INTO Minecraftno.users (`name`, `uuid`) VALUES ('" + player.getName() + "', '"+player.getUniqueId().toString()+"')")) {
                 if (sqlHandler.update("REPLACE INTO `access` (`userID`, `accesslevel`) VALUES (" + getUserId(player) + ", " + accessLevel + ")")) {
                     //delPlayer(player);
                     updatePlayer(player, 0);
@@ -777,6 +843,52 @@ public class UserHandler {
             conn = this.plugin.getConnection();
             ps = conn.prepareStatement("SELECT id FROM Minecraftno.users WHERE name = ?");
             ps.setString(1, playerName);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                userId = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            Minecraftno.log.log(Level.SEVERE, "[Minecraftno] SQL-feil i: " + Thread.currentThread().getStackTrace()[0].getMethodName(), e);
+        } finally {
+            try {
+                if (ps != null) {
+                    ps.close();
+                }
+                if (rs != null) {
+                    rs.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                Minecraftno.log.log(Level.SEVERE, "SQL-error:", e);
+            }
+        }
+        return userId;
+    }
+
+    /**
+     * Gets the id for the uuid
+     *
+     * @param uuid Unique User ID of player.
+     *
+     * @return the player's id, or -1 if the player does not exist.
+     */
+    public int getUserIdByUUID(String uuid) {
+        int userId = -1;
+        for (Entry<Player, PlayerData> entry : getOnlineUsers().entrySet()) {
+            if (entry.getKey().getUniqueId().toString().equalsIgnoreCase(uuid)) {
+                return entry.getValue().getUserId();
+            }
+        }
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            conn = this.plugin.getConnection();
+            ps = conn.prepareStatement("SELECT id FROM Minecraftno.users WHERE uuid = ?");
+            ps.setString(1, uuid);
             rs = ps.executeQuery();
 
             while (rs.next()) {
