@@ -193,6 +193,7 @@ public class UserHandler {
             this.onlineUsers.get(p).setAccessLevel(accessLevel);
             this.onlineUsers.get(p).setGroupId(groupId);
             this.onlineUsers.get(p).setUserId(userId);
+            this.onlineUsers.get(p).setCachedUUID(p.getUniqueId().toString());
         } else {
             this.onlineUsers.put(p, pd);
         }
