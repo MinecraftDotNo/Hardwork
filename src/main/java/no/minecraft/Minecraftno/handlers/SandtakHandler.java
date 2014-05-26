@@ -432,7 +432,7 @@ public class SandtakHandler {
             if (pos1.getBlock().getType().equals(Material.CHEST) && pos2.getBlock().getType().equals(Material.CHEST)) {
                 Chest chest = (Chest) pos1.getBlock().getState();
 
-                if (chest.getInventory().getContents() != null) {
+                if (chest.getInventory().getContents() != null && chest.getInventory().getItem(0) != null) {
                     Material slot1Material = chest.getInventory().getItem(0).getType();
                     for (ItemStack stack : chest.getInventory().getContents()) { // unsure whether this contains the inventory for just one of the sides or the whole chest
                         if (stack == null || slot1Material != stack.getType() || !((stack.getType().equals(Material.COBBLESTONE) || stack.getType().equals(Material.STONE)) && stack.getAmount() == 64)) {
