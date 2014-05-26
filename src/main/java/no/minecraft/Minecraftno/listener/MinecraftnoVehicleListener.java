@@ -62,17 +62,11 @@ public class MinecraftnoVehicleListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onVehicleEntityCollision(VehicleEntityCollisionEvent event) {
-        if ((event.getVehicle() instanceof Minecart)) {
-            Entity collisioner = event.getEntity();
-
-            if ((collisioner instanceof LivingEntity)) {
-                LivingEntity victim = (LivingEntity) collisioner;
-                if ((!(victim instanceof Player)) && (!(victim instanceof Wolf))) {
-                    victim.remove();
-                    event.setCancelled(true);
-                    event.setCollisionCancelled(true);
-                    event.setPickupCancelled(true);
-                }
+        if (event.getVehicle() instanceof Minecart) {
+            if (event.getEntity() instanceof LivingEntity) {
+                event.setCancelled(true);
+                event.setCollisionCancelled(true);
+                event.setPickupCancelled(true);
             }
         }
     }
