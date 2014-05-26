@@ -62,13 +62,22 @@ public class MinecraftnoVehicleListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onVehicleEntityCollision(VehicleEntityCollisionEvent event) {
-        if (event.getVehicle() instanceof Minecart) {
-            if (event.getEntity() instanceof LivingEntity) {
-                event.setCancelled(true);
-                event.setCollisionCancelled(true);
-                event.setPickupCancelled(true);
-            }
-        }
+        // We only care about minecarts.
+        if (!(event.getVehicle() instanceof Minecart))
+            return;
+
+        // We only care about collisions with living entities.
+        if (!(event.getEntity() instanceof LivingEntity))
+            return;
+
+        // We ony care about non-empty carts.
+        if (event.getVehicle().isEmpty())
+            return;
+
+        // No collision. Carry on!
+        event.setCancelled(true);
+        event.setCollisionCancelled(true);
+        event.setPickupCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
