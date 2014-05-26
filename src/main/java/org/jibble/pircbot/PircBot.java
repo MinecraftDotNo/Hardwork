@@ -64,7 +64,7 @@ public abstract class PircBot implements ReplyConstants {
      * The definitive version number of this release of PircBot.
      * (Note: Change this before automatically building releases)
      */
-    public static final String VERSION = "Custom by tjnome";
+    public static final String VERSION = "Custom";
 
     private static final int OWNER_ADD = 1;
     private static final int OWNER_REMOVE = 2;
