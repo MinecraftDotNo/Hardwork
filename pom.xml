@@ -38,6 +38,12 @@
             <name>Jim C K Flaten</name>
             <email>jckf@jckf.no</email>
         </developer>
+
+		<developer>
+			<id>jimbo8</id>
+			<name>Thomas Dale</name>
+			<email>apekatten321@live.com</email>
+		</developer>
     </developers>
 
     <repositories>
