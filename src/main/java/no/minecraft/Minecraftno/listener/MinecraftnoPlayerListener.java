@@ -448,7 +448,7 @@ public class MinecraftnoPlayerListener implements Listener {
                             } else {
                                 tt = TreeType.valueOf(ts.name());
 
-                				/* Require four saplings? */
+                                /* Require four saplings? */
                                 if (tt == TreeType.JUNGLE || tt == TreeType.DARK_OAK) {
                                     int saplingsfound = 0;
                                     for (BlockFace f : faces) {
@@ -973,13 +973,13 @@ public class MinecraftnoPlayerListener implements Listener {
             return;
         } else if ((event.getReason().toLowerCase().contains("flying")) || (event.getReason().toLowerCase().contains("floating"))) {
             this.handleFlymod(event);
-        } else if (event.getReason().equalsIgnoreCase("You have been idle for too long!")) {           	
-        	if (this.userHandler.getAccess(player) < 2) {
-        		event.setCancelled(true);
-        		return;
-        	}
-        	
-    		event.setReason("Du ble kicket for å være AFK alt for lenge. >=(");
+        } else if (event.getReason().equalsIgnoreCase("You have been idle for too long!")) {               
+            if (this.userHandler.getAccess(player) < 2) {
+                event.setCancelled(true);
+                return;
+            }
+            
+            event.setReason("Du ble kicket for å være AFK alt for lenge. >=(");
             event.setLeaveMessage(ChatColor.GRAY + player.getName() + " ble kicket for å være afk for lenge.");
         }
 
