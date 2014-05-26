@@ -384,7 +384,6 @@ public class MinecraftnoVehicleListener implements Listener {
                             player.getWorld().dropItem(player.getLocation(), toReturn);
                         }
 
-                        player.teleport(veh.getLocation());
                         veh.remove();
                     }
                 }
