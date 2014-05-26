@@ -3,7 +3,7 @@ main: ${main.class}
 version: ${project.version}
 
 description: ${project.organization.name} plugin
-authors: ['tjnome', 'ventrec', 'Jckf', 'Thypthon']
+authors: ['tjnome', 'ventrec', 'Jckf', 'Thypthon', 'jimbo8']
 website: ${project.organization.url}
 
 softdepend: [WorldEdit]
