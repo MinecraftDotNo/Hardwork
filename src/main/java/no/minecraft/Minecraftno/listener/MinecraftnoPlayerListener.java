@@ -206,7 +206,7 @@ public class MinecraftnoPlayerListener implements Listener {
         } else if (e.getType() == EntityType.HORSE) {
             Horse h = (Horse) e;
             String owner = "ingen";
-            if (h.isTamed()) {
+            if (h.isTamed() && h.getOwner() != null) {
                 owner = h.getOwner().getName();
             }
 

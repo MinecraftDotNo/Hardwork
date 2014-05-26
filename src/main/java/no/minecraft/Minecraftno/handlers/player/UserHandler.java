@@ -184,7 +184,7 @@ public class UserHandler {
     public void addPlayer(Player p, int accessLevel, int groupId, int userId) {
         PlayerData pd = new PlayerData(accessLevel, groupId);
         pd.setUserId(userId);
-        File dataFile = new File(this.plugin.getDataFolder() + "/players/", p.getUniqueId().toString()); 
+        File dataFile = new File(this.plugin.getDataFolder() + "/players/", p.getUniqueId().toString());
         if (dataFile.exists()) {
             try {
                 this.onlineUsers.put(p, (PlayerData) SavedObject.load(dataFile));
