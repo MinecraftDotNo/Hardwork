@@ -117,35 +117,21 @@ public class MinecraftnoEntityListener implements Listener {
             if (event instanceof EntityDamageByEntityEvent) {
                 EntityDamageByEntityEvent subEvent = (EntityDamageByEntityEvent) event;
                 attacker = subEvent.getDamager();
-                if (attacker instanceof Player) {
-                    Player player = (Player) attacker;
-                    if (entity.getType() == EntityType.HORSE) {
-                        Horse horsy = (Horse) entity;
-                        if (horsy.isTamed() && horsy.getOwner() != null) {
-                            String owner = horsy.getOwner().getName();
-                            if (!owner.equalsIgnoreCase(player.getName())) {
-                                player.sendMessage(ChatColor.RED + "Denne hesten er eid av " + ChatColor.WHITE + owner + ChatColor.RED + " så du kan ikke drepe den.");
-                                event.setCancelled(true);
-                            }
-                        }
-                    }
-                } else {
-                    if (entity.getType() == EntityType.HORSE) {
-                        Horse horsy = (Horse) entity;
-                        if (horsy.isTamed() && horsy.getOwner() != null) {
-                            if (type == DamageCause.FALL || type == DamageCause.FALLING_BLOCK || type == DamageCause.CONTACT || type == DamageCause.FIRE || type == DamageCause.FIRE_TICK || type == DamageCause.LAVA || type == DamageCause.DROWNING) {
-                                event.setCancelled(true);
-                            }
-                        }
-                    }
+                if (!(entity instanceof Horse))
+                	return;
+                
+                Horse horsy = (Horse) entity;
+                
+                if (this.resolveHorseDamage(horsy, type, attacker)) {
+                	event.setCancelled(true);
+                	return;
                 }
             } else {
                 if (entity.getType() == EntityType.HORSE) {
                     Horse horsy = (Horse) entity;
-                    if (horsy.isTamed() && horsy.getOwner() != null) {
-                        if (type == DamageCause.FALL || type == DamageCause.FALLING_BLOCK || type == DamageCause.CONTACT || type == DamageCause.FIRE || type == DamageCause.FIRE_TICK || type == DamageCause.LAVA || type == DamageCause.DROWNING) {
-                            event.setCancelled(true);
-                        }
+                    if (this.resolveHorseDamage(horsy, type, attacker)) {
+                    	event.setCancelled(true);
+                    	return;
                     }
                 }
             }
@@ -197,6 +183,46 @@ public class MinecraftnoEntityListener implements Listener {
                     }
                 }
             }
+        }
+    }
+    
+    /**
+     * Resolve horse damage, will return true if event should be cancelled.
+     * @param horsy
+     * @param cause
+     * @param attacker
+     * @return true if cancel event, false don't.
+     */
+    private boolean resolveHorseDamage(Horse horsy, DamageCause cause, Entity attacker)
+    {
+    	if (!horsy.isTamed() || horsy.getOwner() == null) {
+    		return false;
+    	}
+    	
+    	switch (cause) {
+    	case FALL:
+    	case FALLING_BLOCK:
+    	case CONTACT:
+    	case FIRE:
+    	case FIRE_TICK:
+    	case LAVA:
+    	case PROJECTILE:
+    	case DROWNING:        	
+        	return true;
+    	case ENTITY_ATTACK:    		
+    		if (!(attacker instanceof Player)) return true;
+        	
+        	Player pl = (Player) attacker;
+        	
+        	String owner = horsy.getOwner().getName();
+        	if (!owner.equalsIgnoreCase(pl.getName())) {
+        		pl.sendMessage(ChatColor.RED + "Denne hesten er eid av " + ChatColor.WHITE + owner + ChatColor.RED + " så du kan ikke drepe den.");
+        		return true;
+        	}
+        	
+    		return false;
+    	default:
+    		return false;
         }
     }
 

@@ -203,14 +203,24 @@ public class MinecraftnoPlayerListener implements Listener {
                     }
                 }
             }
-        } else if (e.getType() == EntityType.HORSE) {
+        } else if (e.getType() == EntityType.HORSE) {   
             Horse h = (Horse) e;
             String owner = "ingen";
             if (h.isTamed() && h.getOwner() != null) {
                 owner = h.getOwner().getName();
             }
-
-            player.sendMessage("Eier av hesten: " + ChatColor.BLUE + owner);
+            
+        	if (player.getItemInHand().getType() == Material.WATCH) {
+                player.sendMessage("Eier av hesten: " + ChatColor.BLUE + owner);
+        		event.setCancelled(true);
+                return;
+        	}
+        	
+        	if (!owner.equalsIgnoreCase("ingen") && !owner.equalsIgnoreCase(player.getName())) {
+        		player.sendMessage(ChatColor.RED + "Denne hesten er eid av " + ChatColor.WHITE + owner + ChatColor.RED + " så du kan ikke interakte med den.");
+        		event.setCancelled(true);
+        		return;
+        	}
         }
 
         int wolves = 0;
