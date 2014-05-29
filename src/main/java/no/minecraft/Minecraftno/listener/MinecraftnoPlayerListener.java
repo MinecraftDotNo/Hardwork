@@ -309,7 +309,6 @@ public class MinecraftnoPlayerListener implements Listener {
         if (!wcfg.itemDurability) {
             if (cfg.noDamageTools.contains(itemInHand.getTypeId())) {
                 itemInHand.setDurability((short) -200);
-                player.updateInventory();
             }
         }
 
