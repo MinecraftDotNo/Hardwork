@@ -860,7 +860,7 @@ public class MinecraftnoPlayerListener implements Listener {
             }
         }
 
-        if (access == 0) {
+        if (!player.hasPlayedBefore()) {
             if (!(player.getInventory().contains(Material.MINECART))) {
                 player.getInventory().addItem(new ItemStack(Material.MINECART, 1));
             }
@@ -900,7 +900,7 @@ public class MinecraftnoPlayerListener implements Listener {
             for (Player reciever : this.plugin.getServer().getOnlinePlayers()) {
                 if (this.userHandler.getAnnonseringer(reciever)) {
                     reciever.sendMessage(player.getDisplayName() +
-                        ChatColor.GREEN + " logget på.");
+                        ChatColor.GREEN + " logget på" + (player.hasPlayedBefore() ? " for første gang! :)" : "."));
                 }
             }
         }

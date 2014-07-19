@@ -66,7 +66,7 @@ public class UserHandler {
         if (!userExists(p)) {
             // Hvis brukeren ikke eksisterer i databasen, blir
             // den opprettet.
-            addUser(p, true);
+            addUser(p, false);
         } else {
 
         	int id = getUserIdByUUID(p.getUniqueId().toString());
