@@ -15,7 +15,7 @@ whitelist: # Whitelist toggling on plugin enable and disable.
   on_disable:
     toggle: true
     state: true
-  message: Serveren restarter.. # Message sent to players on disable if whitelist is being enabled.
+  message: Serveren restarter... # Message sent to players on disable if whitelist is being enabled.
 
 irc:
   nickserv_password: abc123
