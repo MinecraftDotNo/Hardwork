@@ -357,11 +357,11 @@ commands:
     usage: /<command>
 
   hest:
-    description: Kjop hester med denne kommandoen.
+    description: Kjøp hester med denne kommandoen.
     usage: /<command>
 
   nametag:
-    description: Kjop en nametag
+    description: Kjøp en nametag.
     usage: /<command> [onsket navn]
 
   nisse:
@@ -370,8 +370,7 @@ commands:
 
   minecart:
     description: Gir deg en minecart i din inventory.
-    usage: |
-           /<command>
+    usage: /<command>
 
   wiki:
     description: Informasjon om wiki.
