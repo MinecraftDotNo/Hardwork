@@ -372,3 +372,7 @@ commands:
     description: Gir deg en minecart i din inventory.
     usage: |
            /<command>
+
+  wiki:
+    description: Informasjon om wiki.
+    usage: /<command> <ny melding>
