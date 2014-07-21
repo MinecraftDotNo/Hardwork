@@ -353,6 +353,7 @@ public class Minecraftno extends JavaPlugin {
         getCommand("nisse").setExecutor(new NisseCommand(this));
         getCommand("minecart").setExecutor(new MinecartCommand(this));
         getCommand("wiki").setExecutor(new WikiCommand(this));
+        getCommand("irc").setExecutor(new IrcCommand(this));
 
         if (weBridge.isEnabled()) {
             // Bare bruk kommandoene hvis WE er lastet.

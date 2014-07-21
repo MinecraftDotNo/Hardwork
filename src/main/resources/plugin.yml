@@ -375,3 +375,7 @@ commands:
   wiki:
     description: Informasjon om wiki.
     usage: /<command> <ny melding>
+
+  irc:
+    description: Hent tilgangskode for IRC.
+    usage: /<command>
