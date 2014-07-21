@@ -4,6 +4,7 @@ import no.minecraft.Minecraftno.Minecraftno;
 import no.minecraft.Minecraftno.conf.ConfigurationServer;
 import no.minecraft.Minecraftno.handlers.player.UserHandler;
 import no.minecraft.Minecraftno.irc.commands.*;
+import org.apache.commons.lang.RandomStringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.jibble.pircbot.*;
@@ -11,7 +12,9 @@ import org.jibble.pircbot.*;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class IRCBot extends PircBot {
 
@@ -19,6 +22,7 @@ public class IRCBot extends PircBot {
     private final UserHandler userHandler;
     private final static String commandprefix = "-";
     private final List<IRCBotCommand> commands = new ArrayList<IRCBotCommand>();
+    private final Map<String, String> accessCodes = new HashMap<>();
 
     public IRCBot(Minecraftno instance) {
         this.plugin = instance;
@@ -81,6 +85,7 @@ public class IRCBot extends PircBot {
         commands.add(new IRCBanCommand(this.plugin));
         commands.add(new IRCUnbanCommand(this.plugin));
         commands.add(new IRCListWarningsCommand(this.plugin));
+        commands.add(new IRCAccessCommand(this.plugin));
     }
 
     public void onMessage(String channel, String sender, String login, String hostname, String message) {
@@ -151,5 +156,28 @@ public class IRCBot extends PircBot {
     @Override
     protected void onServerResponse(int code, String response) {
 
+    }
+
+    public String getAccessCode(String nick) {
+        if (!this.accessCodes.containsKey(nick))
+            this.accessCodes.put(nick, RandomStringUtils.randomAlphanumeric(8));
+
+        return this.accessCodes.get(nick);
+    }
+
+    public void promote(String nick) {
+        String group = "";
+
+        switch (this.plugin.getUserHandler().getAccess(nick)) {
+            case 2: group = "pensjonist"; break;
+            case 3: group = "vakt"; break;
+            case 4: group = "stab"; break;
+            case 5: group = "tech"; break;
+        }
+
+        if (group.equals(""))
+            return;
+
+        this.sendMessage("GroupServ", "FLAGS !hardwork." + group + " " + nick + " +cmv");
     }
 }
