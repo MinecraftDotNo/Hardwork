@@ -141,19 +141,18 @@ public class IRCBot extends PircBot {
     protected void onPrivateMessage(String sender, String login, String hostname, String message) {
         super.onPrivateMessage(sender, login, hostname, message);
 
-        if (!message.startsWith(this.commandprefix))
-            return;
+        if (message.startsWith(this.commandprefix)) {
+            message = message.replaceFirst(this.commandprefix, "");
+            String[] segments = message.split(" ");
 
-        message = message.replaceFirst(this.commandprefix, "");
-        String[] segments = message.split(" ");
-
-        for (IRCBotCommand command : this.commands) {
-            if (command.getCommandName().equalsIgnoreCase(segments[0])) {
-                this.plugin.getServer().getScheduler().runTask(
-                    this.plugin,
-                    new CommandTask(this, sender, sender, message, command)
-                );
-                return;
+            for (IRCBotCommand command : this.commands) {
+                if (command.getCommandName().equalsIgnoreCase(segments[0])) {
+                    this.plugin.getServer().getScheduler().runTask(
+                        this.plugin,
+                        new CommandTask(this, sender, sender, message, command)
+                    );
+                    return;
+                }
             }
         }
 
