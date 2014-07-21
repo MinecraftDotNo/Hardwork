@@ -1,1 +1,8 @@
 language: java
+
+notifications:
+  irc:
+    channels:
+      - "irc.minecraft.no#intern"
+    on_success: always
+    on_failure: always
