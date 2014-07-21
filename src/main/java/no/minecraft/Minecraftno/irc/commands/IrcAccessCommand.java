@@ -17,9 +17,9 @@ public class IRCAccessCommand implements IRCBotCommand {
 
     @Override
     public void handleMessage(PircBot bot, String channel, String sender, String message) {
-        String[] segments = message.split(" ");
         String[] args = new String[0];
-        System.arraycopy(segments, 1, args, 0, segments.length - 1);
+        if (!message.isEmpty())
+            args = message.split(" ");
 
         if (args.length == 0) {
             bot.sendMessage(sender, "Ingen adgangskode angitt. Skriv /irc in-game for å få tildelt en.");
@@ -27,6 +27,7 @@ public class IRCAccessCommand implements IRCBotCommand {
         }
 
         if (!args[0].equals(this.plugin.getIrcBot().getAccessCode(sender))) {
+            this.plugin.getLogger().info("Access code for " + sender + " is " + this.plugin.getIrcBot().getAccessCode(sender) + ", " + args[0] + " given.");
             bot.sendMessage(sender, "Adgangskoden stemmer ikke over ens med den knyttet til ditt nick. Husk at du må ha samme navn på IRC som du har in-game.");
             return;
         }
