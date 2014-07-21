@@ -399,17 +399,7 @@ public class Minecraftno extends JavaPlugin {
     }
 
     public Player playerMatch(String name) {
-        if (getServer().getOnlinePlayers().length < 1) {
-            return null;
-        }
-
-        for (Player player : getServer().getOnlinePlayers()) {
-            if (player.getName().equalsIgnoreCase(name)) {
-                return player;
-            }
-        }
-
-        return null;
+        return this.getServer().getPlayerExact(name);
     }
 
     public ArrayList<Integer> formatTime(BanData banData) {
