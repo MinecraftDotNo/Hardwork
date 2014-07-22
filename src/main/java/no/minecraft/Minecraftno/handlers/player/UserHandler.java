@@ -61,8 +61,6 @@ public class UserHandler {
     }
 
     public void addPlayer(Player p) {
-        updatePlayer(p);
-    	
         if (!userExists(p)) {
             // Hvis brukeren ikke eksisterer i databasen, blir
             // den opprettet.
@@ -72,6 +70,8 @@ public class UserHandler {
         	int id = getUserIdByUUID(p.getUniqueId().toString());
             addPlayer(p, getAccessFromDB(p), this.groupHandler.getGroupIDFromUserId(id), id);
         }
+
+        updatePlayer(p);
     }
 
     public void cleanup() {
