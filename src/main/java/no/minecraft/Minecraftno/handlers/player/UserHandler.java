@@ -71,6 +71,8 @@ public class UserHandler {
             addPlayer(p, getAccessFromDB(p), this.groupHandler.getGroupIDFromUserId(id), id);
         }
 
+        // Adds UUID for new users.
+        // Updates name for existing users.
         updatePlayer(p);
     }
 
@@ -169,8 +171,7 @@ public class UserHandler {
      */
     public boolean userExists(Player p)
     {
-    	String uuid = this.sqlHandler.getColumn("SELECT `uuid` FROM `Minecraftno`.`users` WHERE `name` = '" + p.getName() + "'");
-    	return uuid != null;
+    	return null != this.sqlHandler.getColumn("SELECT `id` FROM `Minecraftno`.`users` WHERE `uuid` = '" + p.getUniqueId() + "'");
     }
 
     public boolean isRegPlayer(Player player) {
