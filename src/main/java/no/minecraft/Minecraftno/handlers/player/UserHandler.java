@@ -62,11 +62,8 @@ public class UserHandler {
 
     public void addPlayer(Player p) {
         if (!userExists(p)) {
-            // Hvis brukeren ikke eksisterer i databasen, blir
-            // den opprettet.
-            addUser(p, false);
+            addUser(p, true);
         } else {
-
         	int id = getUserIdByUUID(p.getUniqueId().toString());
             addPlayer(p, getAccessFromDB(p), this.groupHandler.getGroupIDFromUserId(id), id);
         }
@@ -530,9 +527,6 @@ public class UserHandler {
     public boolean addUser(Player player, boolean firstTime) {
         int accessLevel = 1;
         if (firstTime) {
-            accessLevel = 0;
-            //addPlayer(player, accessLevel);
-            
             if (sqlHandler.update("REPLACE INTO Minecraftno.users (`name`, `uuid`) VALUES ('" + player.getName() + "', '"+player.getUniqueId().toString()+"')")) {
                 if (sqlHandler.update("REPLACE INTO `access` (`userID`, `accesslevel`) VALUES (" + getUserId(player) + ", " + accessLevel + ")")) {
                     //delPlayer(player);
