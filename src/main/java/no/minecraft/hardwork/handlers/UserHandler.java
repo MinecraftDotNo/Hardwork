@@ -39,7 +39,7 @@ public class UserHandler {
         Element cached = cache.get(id);
 
         if (cached != null && !cached.isExpired())
-            return (User) cached.getValue();
+            return (User) cached.getObjectValue();
 
         User user = null;
 
@@ -87,7 +87,7 @@ public class UserHandler {
         Element cached = cache.get(uuid);
 
         if (cached != null && !cached.isExpired())
-            return (User) cached.getValue();
+            return (User) cached.getObjectValue();
 
         User user = null;
 
@@ -135,7 +135,7 @@ public class UserHandler {
         Element cached = cache.get(name);
 
         if (cached != null && !cached.isExpired())
-            return (User) cached.getValue();
+            return (User) cached.getObjectValue();
 
         User user = null;
 
