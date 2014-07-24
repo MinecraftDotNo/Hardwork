@@ -19,3 +19,9 @@ whitelist: # Whitelist toggling on plugin enable and disable.
 
 irc:
   nickserv_password: abc123
+
+mysql:
+  hostname: localhost
+  port: 3306
+  username: root
+  password: abc123

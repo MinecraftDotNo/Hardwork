@@ -16,6 +16,7 @@ import no.minecraft.Minecraftno.handlers.scheduler.WorldBackup;
 import no.minecraft.Minecraftno.irc.IRCBot;
 import no.minecraft.Minecraftno.listener.*;
 import no.minecraft.Minecraftno.sql.MySQLConnectionPool;
+import no.minecraft.hardwork.Hardwork;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -32,6 +33,8 @@ import java.util.Timer;
 import java.util.logging.Logger;
 
 public class Minecraftno extends JavaPlugin {
+    private final Hardwork hardwork = new Hardwork(this);
+
     // Compatibility with old classes.
     public static Logger log;
     public static Logger debugLog;
@@ -82,6 +85,8 @@ public class Minecraftno extends JavaPlugin {
     private final MinecraftnoHangingListener hangingListener = new MinecraftnoHangingListener(this);
 
     public void onEnable() {
+        hardwork.onEnable();
+
         // Use the default Bukkit logger.
         // Previous log handler is no longer needed, as "Overloaded!" messages can be disabled in config.
         Minecraftno.log = this.getLogger();
@@ -283,7 +288,6 @@ public class Minecraftno extends JavaPlugin {
         getCommand("warp").setExecutor(new WarpCommand(this, wh));
         getCommand("warps").setExecutor(new WarpsCommand(this, wh));
         getCommand("msg").setExecutor(new MCommand(this));
-        getCommand("who").setExecutor(new WhoCommand(this));
         getCommand("spawn").setExecutor(new SpawnCommand(this));
         getCommand("setspawn").setExecutor(new SetSpawnCommand(this));
         getCommand("tp").setExecutor(new TpCommand(this));
