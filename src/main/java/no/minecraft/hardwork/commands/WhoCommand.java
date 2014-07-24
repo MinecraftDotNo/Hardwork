@@ -36,15 +36,15 @@ public class WhoCommand implements CommandExecutor {
                 players.get(accessLevel).add(player.getDisplayName());
             }
 
-            String output = "";
+            List<String> output = new ArrayList<>();
             for (int accessLevel : new TreeSet<>(players.keySet())) {
                 List<String> sort = players.get(accessLevel);
                 Collections.sort(sort);
 
-                output += StringUtils.join(sort, ChatColor.RESET + ", ");
+                output.add(StringUtils.join(sort, ChatColor.RESET + ", "));
             }
 
-            sender.sendMessage(ChatColor.GREEN + "Påloggede spillere (" + onlinePlayers.length + "): " + output);
+            sender.sendMessage(ChatColor.GREEN + "Påloggede spillere (" + onlinePlayers.length + "): " + StringUtils.join(output, ChatColor.RESET + ", "));
 
             return true;
         }
