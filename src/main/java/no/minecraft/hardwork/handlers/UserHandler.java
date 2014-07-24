@@ -199,4 +199,10 @@ public class UserHandler {
 
         return date;
     }
+
+    public void clearCachedUser(User user) {
+        this.hardwork.getCache("User_id").remove(user.getId());
+        this.hardwork.getCache("User_uuid").remove(user.getUuid());
+        this.hardwork.getCache("User_name").remove(user.getName());
+    }
 }

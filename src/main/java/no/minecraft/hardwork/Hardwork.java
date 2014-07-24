@@ -6,6 +6,7 @@ import no.minecraft.hardwork.commands.WhoCommand;
 import no.minecraft.hardwork.database.DataConsumer;
 import no.minecraft.hardwork.database.Database;
 import no.minecraft.hardwork.handlers.UserHandler;
+import no.minecraft.hardwork.listeners.PlayerListener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.SQLException;
@@ -23,6 +24,8 @@ public class Hardwork implements DataConsumer {
     }
 
     public void onEnable() {
+        this.plugin.getServer().getPluginManager().registerEvents(new PlayerListener(this), this.plugin);
+
         this.plugin.getCommand("who").setExecutor(new WhoCommand(this));
     }
 
