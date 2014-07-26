@@ -71,6 +71,11 @@ public class WhoCommand implements CommandExecutor {
 
             Date date = this.hardwork.getUserHandler().getUserLastLogin(user);
 
+            if (date == null) {
+                sender.sendMessage(ChatColor.RED + "Jeg kan ikke huske å ha sett " + user.getName() + " :(");
+                return true;
+            }
+
             DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
 
             sender.sendMessage(ChatColor.GREEN + user.getName() + " var sist pålogget " + dateFormat.format(date) + ".");
