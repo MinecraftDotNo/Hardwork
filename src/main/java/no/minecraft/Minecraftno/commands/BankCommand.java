@@ -226,7 +226,7 @@ public class BankCommand extends MinecraftnoCommand {
         }
 
         // Verify our calculation.
-        if ((blocks * 9) + ingots == amount) {
+        if ((blocks * 9) + ingots != amount) {
             player.sendMessage(getErrorChatColor() + "Jim kan ikke mattematikk :(");
             return;
         }
