@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class BankCommand extends MinecraftnoCommand {
@@ -191,43 +192,96 @@ public class BankCommand extends MinecraftnoCommand {
      * @param amount Amount of gold.
      */
     private void bankUtCommand(Player player, int amount) {
-        int inventorySpace = BankHandler.calculateMaxBankUt(player);
+        // The maximum amount of blocks and ingots we can fit in the inventory.
+        int maxBlocks = BankHandler.getFreeSpace(player, new ItemStack(Material.GOLD_BLOCK));
+        int maxIngots = BankHandler.getFreeSpace(player, new ItemStack(Material.GOLD_INGOT));
 
-        if (amount <= inventorySpace) {
-            if (this.bankHandler.removeAmount(player, amount)) {
-                ItemStack ingots = new ItemStack(Material.GOLD_INGOT, amount % 9);
-                ItemStack blocks = new ItemStack(Material.GOLD_BLOCK, (int) ((double) amount / (double) 9)); // Hack much?
+        // The number of blocks and ingots we'd like to fit in the inventory.
+        int optimalBlocks = (int) ((double) amount / (double) 9);
+        int optimalIngots = amount % 9;
 
-                Map<Integer, ItemStack> leftOverIngots = player.getInventory().addItem(ingots);
-                Map<Integer, ItemStack> leftOverBlocks = player.getInventory().addItem(blocks);
+        // The number of blocks nad ingots we will place in the inventory.
+        int blocks = 0;
+        int ingots = 0;
 
-                if (leftOverIngots.isEmpty() || leftOverBlocks.isEmpty()) {
-                    player.sendMessage(getDefaultChatColor() + "Tok ut: " + getVarChatColor() + amount + getDefaultChatColor() + " gull. Du har nå: " + getVarChatColor() + this.bankHandler.getAmount(player) + getDefaultChatColor() + " gull i banken.");
-                    logHandler.log(this.userHandler.getUserId(player), 0, amount, 0, null, MinecraftnoLog.BANKUT);
-                } else {
-                    int remainingGold = 0;
-                    for (ItemStack stack : leftOverIngots.values()) {
-                        remainingGold += stack.getAmount();
-                    }
-                    for (ItemStack stack : leftOverBlocks.values()) {
-                        remainingGold += stack.getAmount() * 9;
-                    }
+        // Check if there's room for the blocks.
+        if (optimalBlocks > maxBlocks) {
+            // No? Take the difference out as ingots instead.
+            ingots += (optimalBlocks - maxBlocks) * 9;
 
-                    logHandler.log(this.userHandler.getUserId(player), 0, (amount - remainingGold), 0, null, MinecraftnoLog.BANKUT);
-                    logHandler.log(this.userHandler.getUserId(player), 0, remainingGold, 0, null, MinecraftnoLog.BANKINN);
-
-                    this.bankHandler.insertAmount(player, remainingGold);
-                    this.plugin.getIrcBot().sendMessage("#hardwork.logg", "[Error][bankUtCommand] - " + player.getName() + " tok ut " + amount + " gull, men fikk ikke plass til alt i inventory. Antall gull til overs: " + remainingGold);
-
-                    player.sendMessage(getDefaultChatColor() + "Tok ut: " + getVarChatColor() + (amount - remainingGold) + getDefaultChatColor() + " gull. Du har nå: " + getVarChatColor() + this.bankHandler.getAmount(player) + getDefaultChatColor() + " gull i banken.");
-                }
-            } else {
-                player.sendMessage(getErrorChatColor() + "En uventet feil oppstod. Kontakt en utvikler!");
-                this.plugin.getIrcBot().sendMessage("#hardwork.logg", "[Error][bankUtCommand] - En feil oppstod når plugin prøvde å fjerne " + amount + " fra " + player.getName() + " sin konto.");
-            }
+            blocks += optimalBlocks - (optimalBlocks - maxBlocks);
         } else {
-            player.sendMessage(getErrorChatColor() + "Du har ikke nok plass i inventory for å ta ut " + getVarChatColor() + amount + getErrorChatColor() + " gull.");
+            // Yes :)
+            blocks += optimalBlocks;
         }
+
+        // Check if there's room for the ingots.
+        if (ingots + optimalIngots > maxIngots) {
+            // No? Tell the player to withdraw less.
+            player.sendMessage(getErrorChatColor() + "Du har ikke plass til så mye gull i inventory. Prøv på nytt med " + getVarChatColor() + ((ingots - optimalBlocks) - maxIngots) + getErrorChatColor() + " gull.");
+            return;
+        } else {
+            // Yes :)
+            ingots += optimalIngots;
+        }
+
+        // Verify our calculation.
+        if ((blocks * 9) + ingots == amount) {
+            player.sendMessage(getErrorChatColor() + "Jim kan ikke mattematikk :(");
+            return;
+        }
+
+        // Remove the gold from the account.
+        if (!this.bankHandler.removeAmount(player, amount)) {
+            // Huh? Something went wrong!
+            player.sendMessage(getErrorChatColor() + "Noe gikk galt under uttak av gull! Ta kontakt med staben!");
+            this.plugin.getIrcBot().sendMessage("#hardwork.logg", "[Error][bankUtCommand] - En feil oppstod når plugin prøvde å fjerne " + amount + " fra " + player.getName() + " sin konto.");
+            return;
+        }
+
+        // Log the transaction.
+        logHandler.log(this.userHandler.getUserId(player), 0, amount, 0, null, MinecraftnoLog.BANKUT);
+
+        // Somewhere to store blocks and ingots we fail to place in the inventory.
+        Map<Integer, ItemStack> failBlocks = new HashMap<>();
+        Map<Integer, ItemStack> failIngots = new HashMap<>();
+
+        // Place the blocks in the inventory.
+        if (blocks > 0)
+            player.getInventory().addItem(new ItemStack(Material.GOLD_BLOCK, blocks));
+
+        // Place the ingots in the inventory.
+        if (ingots > 0)
+            player.getInventory().addItem(new ItemStack(Material.GOLD_INGOT, ingots));
+
+        // The number of gold ingots to refund.
+        int refund = 0;
+
+        // Did we fail to place all the blocks in the inventory?
+        if (!failBlocks.isEmpty()) {
+            for (ItemStack stack : failBlocks.values()) {
+                refund += stack.getAmount() * 9;
+            }
+        }
+
+        // Did we fail to place all the ingots in the inventory?
+        if (!failIngots.isEmpty()) {
+            for (ItemStack stack : failIngots.values()) {
+                refund += stack.getAmount();
+            }
+        }
+
+        // Do we have to refund gold?
+        if (refund > 0) {
+            // Yep :(
+            this.bankHandler.insertAmount(player, refund);
+            logHandler.log(this.userHandler.getUserId(player), 0, refund, 0, null, MinecraftnoLog.BANKINN);
+
+            this.plugin.getIrcBot().sendMessage("#hardwork.logg", "[Error][bankUtCommand] - " + player.getName() + " tok ut " + amount + " gull, men fikk ikke plass til alt i inventory. Antall gull til overs: " + refund);
+        }
+
+        // This is the story all about how...
+        player.sendMessage(getDefaultChatColor() + "Tok ut: " + getVarChatColor() + (amount - refund) + getDefaultChatColor() + " gull. Du har nå: " + getVarChatColor() + this.bankHandler.getAmount(player) + getDefaultChatColor() + " gull i banken.");
     }
 
     /**
