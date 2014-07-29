@@ -114,8 +114,8 @@ public class BankHandler {
         int free = 0;
 
         for (ItemStack slot : player.getInventory()) {
-            if (slot.getType() == Material.AIR || (slot.getType() == item.getType() && slot.getDurability() == item.getDurability())) {
-                free += slot.getType().getMaxStackSize() - slot.getAmount();
+            if ((slot == null || slot.getType() == Material.AIR) || (slot.getType() == item.getType() && slot.getDurability() == item.getDurability())) {
+                free += (slot != null ? slot.getType().getMaxStackSize() - slot.getAmount() : item.getMaxStackSize());
             }
         }
 
