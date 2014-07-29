@@ -50,7 +50,7 @@ public class BankHandler {
     private List<PriceData> buyableItems = new ArrayList<PriceData>();
     private PreparedStatement priceListPS;
 
-    public static short MAX_SPACE = 35 * 64;
+    public static short MAX_SPACE = 9 * 64 * 9 * 4; // 9 ingots = 1 blokk, ganger 64 = 1 stack, ganger 9 = 1 rad, ganger 4 = full inv.
 
     public BankHandler(Minecraftno instance) {
         this.plugin = instance;
@@ -64,30 +64,13 @@ public class BankHandler {
         try {
             this.priceListPS = this.conn.prepareStatement("SELECT * FROM prices");
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
             Minecraftno.log.log(Level.SEVERE, "[Minecraftno] SQL Exception (Under laging av prepared statement)", e);
         }
         getPriceListFromDB();
     }
 
-    /**
-     * Henter ut summen en spiller har på bankkontoen sin.
-     *
-     * @param player
-     *
-     * @return amount
-     */
     public int getAmount(Player player) {
-        int setamount = 0;
-        String amount = this.sqlHandler.getColumn("SELECT `amount` FROM bank WHERE `userid`=" + this.userHandler.getUserId(player) + "");
-        if (amount == null) {
-            if (sqlHandler.update("REPLACE INTO `bank` (`userid`, `amount`) VALUES (" + this.userHandler.getUserId(player) + ", " + setamount + ")")) {
-                return setamount;
-            } else {
-                return 0;
-            }
-        }
-        return Integer.parseInt(amount);
+        return getAmount(player.getName());
     }
 
     public int getAmount(String player) {
@@ -103,97 +86,44 @@ public class BankHandler {
         return Integer.parseInt(amount);
     }
 
-    /**
-     * Setter summen en spiller har på bankkonto.
-     *
-     * @param player
-     * @param 0      sum (int)
-     *
-     * @return true om den fikk oppdatert
-     */
-
     public boolean setAmount(Player player, int amount) {
-        return this.sqlHandler.update("UPDATE bank SET `amount`='" + amount + "' WHERE `userid`=" + this.userHandler.getUserId(player));
+        return this.sqlHandler.update("UPDATE bank SET amount=" + amount + " WHERE `userid`=" + this.userHandler.getUserId(player));
     }
 
-    /**
-     * Setter inn valgt sum på kontoen til en spiller
-     *
-     * @param player
-     * @param 0      sum (int)
-     *
-     * @return true om summen ble satt inn.
-     */
-    public boolean insertAmount(Player player, int amount) {
-        int newamount = getAmount(player) + amount;
-        return this.sqlHandler.update("UPDATE bank SET `amount`='" + newamount + "' WHERE `userid`=" + this.userHandler.getUserId(player));
-    }
-
-    /**
-     * Setter inn valgt sum på kontoen til en spiller
-     *
-     * @param player
-     * @param 0      sum (int)
-     *
-     * @return true om summen ble satt inn.
-     */
     public boolean insertAmount(String player, int amount) {
-        int newamount = getAmount(player) + amount;
-        return this.sqlHandler.update("UPDATE bank SET `amount`='" + newamount + "' WHERE `userid`=" + this.userHandler.getUserId(player));
+        return this.sqlHandler.update("UPDATE bank SET amount=amount+" + amount + " WHERE `userid`=" + this.userHandler.getUserId(player));
     }
 
-    /**
-     * Fjerner valgt sum fra spillerens bankkonto
-     *
-     * @param player
-     * @param 0      sum (int)
-     *
-     * @return false om summen er høyere enn det spilleren har på bankkonto
-     */
+    public boolean insertAmount(Player player, int amount) {
+        return insertAmount(player.getName(), amount);
+    }
+
     public boolean removeAmount(Player player, int amount) {
         if (getAmount(player) >= amount) {
-            int newamount = getAmount(player) - amount;
-            return this.sqlHandler.update("UPDATE bank SET `amount`='" + newamount + "' WHERE `userid`=" + this.userHandler.getUserId(player));
+            return this.sqlHandler.update("UPDATE bank SET amount=amount-" + amount + " WHERE `userid`=" + this.userHandler.getUserId(player));
         } else {
             return false;
         }
     }
 
-    /**
-     * Overfører sum fra en spiller til en annen.
-     *
-     * @param from   (Player)
-     * @param to     (Player)
-     * @param amount (int)
-     *
-     * @return false avsender ikke har nok på bok.
-     */
     public boolean transfer(Player from, Player to, int amount, UserHandler uh) {
         return removeAmount(from, amount) && insertAmount(to, amount);
     }
 
-    /**
-     * Metode for å beregne ledig plass i inventory slik at man unngår at
-     * spilleren mister gull ved uttak
-     *
-     * @param player (Player) Spilleren som tar ut gull
-     *
-     * @return (int) Maks uttak fra banken.
-     */
-    public static int calculateMaxBankUt(Player player) {
-        int emptySlot = 64;
-        int freeSpace = 0;
+    public static int getFreeSpace(Player player, ItemStack item) {
+        int free = 0;
 
-        for (int i = 0; i <= 35; i++) {
-            ItemStack slot = player.getInventory().getItem(i);
-            if (slot.getType() == Material.AIR) {
-                freeSpace += emptySlot;
-            } else if (slot.getType() == Material.GOLD_INGOT) {
-                freeSpace += emptySlot - slot.getAmount();
+        for (ItemStack slot : player.getInventory()) {
+            if (slot.getType() == Material.AIR || (slot.getType() == item.getType() && slot.getDurability() == item.getDurability())) {
+                free += slot.getType().getMaxStackSize() - slot.getAmount();
             }
         }
 
-        return freeSpace;
+        return free;
+    }
+
+    public static int calculateMaxBankUt(Player player) {
+        return getFreeSpace(player, new ItemStack(Material.GOLD_INGOT));
     }
 
     public List<String> getPriceList() {
@@ -229,7 +159,6 @@ public class BankHandler {
                 this.priceList.add(ChatColor.DARK_GREEN + "- " + ChatColor.WHITE + materialName.toLowerCase().replace(" ", "") + ChatColor.DARK_GREEN + ". Antall per gull: " + ChatColor.WHITE + amountPerGold);
             }
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
             Minecraftno.log.log(Level.SEVERE, "[Minecraftno] Fikk ikke hentet prisliste: ", e);
         }
     }
@@ -277,17 +206,5 @@ public class BankHandler {
             }
         }
         return null;
-    }
-
-    public static short getFreeSpace(Player p, ItemStack material) {
-        short space = 0;
-        for (ItemStack it : p.getInventory().getContents()) {
-            if (it == null || it.getType() == Material.AIR) {
-                space += 64;
-            } else if (it.getTypeId() == material.getTypeId() && it.getDurability() == material.getDurability()) {
-                space += 64 - it.getAmount();
-            }
-        }
-        return space;
     }
 }

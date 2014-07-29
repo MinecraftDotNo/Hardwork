@@ -10,8 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
-import java.util.Map.Entry;
+import java.util.Map;
 
 public class BankCommand extends MinecraftnoCommand {
 
@@ -115,26 +114,6 @@ public class BankCommand extends MinecraftnoCommand {
     }
 
     /**
-     * Calculates inventory space for gold ingots.
-     *
-     * @param player Player whos inventory is checked.
-     *
-     * @return Integer containing number of gold ingots that can be placed in the inventory.
-     */
-    private int getInventorySpace(Player player) {
-        int space = 0;
-        for (ItemStack itemStack : player.getInventory()) {
-            if (itemStack == null) {
-                space += Material.GOLD_INGOT.getMaxStackSize();
-            } else if (itemStack.getType().equals(Material.GOLD_INGOT)) {
-                space += (Material.GOLD_INGOT.getMaxStackSize() - itemStack.getAmount());
-            }
-        }
-
-        return space;
-    }
-
-    /**
      * Displays bank information for the given user
      *
      * @param player Player issuing the command
@@ -212,18 +191,26 @@ public class BankCommand extends MinecraftnoCommand {
      * @param amount Amount of gold.
      */
     private void bankUtCommand(Player player, int amount) {
-        int inventorySpace = this.getInventorySpace(player);
+        int inventorySpace = BankHandler.calculateMaxBankUt(player);
+
         if (amount <= inventorySpace) {
             if (this.bankHandler.removeAmount(player, amount)) {
-                ItemStack item = new ItemStack(Material.GOLD_INGOT, amount);
-                HashMap<Integer, ItemStack> leftOver = player.getInventory().addItem(item); // should be null unless something went terribly wrong...
-                if (leftOver.isEmpty()) {
+                ItemStack ingots = new ItemStack(Material.GOLD_INGOT, amount % 9);
+                ItemStack blocks = new ItemStack(Material.GOLD_BLOCK, (int) ((double) amount / (double) 9)); // Hack much?
+
+                Map<Integer, ItemStack> leftOverIngots = player.getInventory().addItem(ingots);
+                Map<Integer, ItemStack> leftOverBlocks = player.getInventory().addItem(blocks);
+
+                if (leftOverIngots.isEmpty() || leftOverBlocks.isEmpty()) {
                     player.sendMessage(getDefaultChatColor() + "Tok ut: " + getVarChatColor() + amount + getDefaultChatColor() + " gull. Du har nå: " + getVarChatColor() + this.bankHandler.getAmount(player) + getDefaultChatColor() + " gull i banken.");
                     logHandler.log(this.userHandler.getUserId(player), 0, amount, 0, null, MinecraftnoLog.BANKUT);
                 } else {
                     int remainingGold = 0;
-                    for (Entry<Integer, ItemStack> e : leftOver.entrySet()) {
-                        remainingGold += e.getValue().getAmount();
+                    for (ItemStack stack : leftOverIngots.values()) {
+                        remainingGold += stack.getAmount();
+                    }
+                    for (ItemStack stack : leftOverBlocks.values()) {
+                        remainingGold += stack.getAmount() * 9;
                     }
 
                     logHandler.log(this.userHandler.getUserId(player), 0, (amount - remainingGold), 0, null, MinecraftnoLog.BANKUT);
