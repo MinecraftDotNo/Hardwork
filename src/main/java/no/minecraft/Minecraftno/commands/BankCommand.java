@@ -228,7 +228,7 @@ public class BankCommand extends MinecraftnoCommand {
             blocks = optimalBlocks;
 
             // How many "either slots" did we spend?
-            int spentEither = maxEither - (optimalBlocks - maxBlocks);
+            int spentEither = Math.abs(maxBlocks - blocks);
 
             // Can we fit the ingots in there too?
             if (optimalIngots <= (maxEither - spentEither) + maxIngots) {
@@ -258,7 +258,7 @@ public class BankCommand extends MinecraftnoCommand {
         }
 
         // Verify our calculation.
-        if ((blocks * 9) + ingots != amount) {
+        if (amount < 0 || (blocks * 9) + ingots != amount) {
             player.sendMessage(getErrorChatColor() + "Jim kan ikke mattematikk :(");
             return;
         }
