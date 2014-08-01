@@ -28,13 +28,16 @@ public class GCommand extends MinecraftnoCommand {
                         player.sendMessage(getOkChatColor() + "Gruppechat aktivert");
                         return true;
                     } else {
-                        player.sendMessage(getOkChatColor() + "Du har allerede aktivert gruppechat.");
+                        player.sendMessage(getOkChatColor() + "Du har alt aktivert gruppechat.");
                         return true;
                     }
                 } else if (args[0].equalsIgnoreCase("off")) {
                     if (this.userHandler.getGroupChatBind(player)) {
                         this.userHandler.setGroupChatBind(player, false);
                         player.sendMessage(getOkChatColor() + " Du har nå deaktivert gruppechat.");
+                        return true;
+                    } else {
+                        player.sendMessage(getOkChatColor() + "Du har alt deaktivert gruppechat.");
                         return true;
                     }
                 } else {
