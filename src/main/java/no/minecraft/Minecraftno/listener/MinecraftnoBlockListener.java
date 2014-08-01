@@ -401,14 +401,11 @@ public class MinecraftnoBlockListener implements Listener {
             }
         }
 
-        // New Feature: http://bugs.minecraft.no/view.php?id=136
-        // Player riding a minecart?
-        if (player.isInsideVehicle()) {
-            // What type?
-            Entity vehicle = player.getVehicle();
-            if (vehicle.getType() == EntityType.MINECART) {
+        if (player.isInsideVehicle() && player.getVehicle().getType() == EntityType.MINECART) {
+            if (block.getType() != Material.SEEDS) {
                 player.sendMessage(ChatColor.RED + "Du har ikke lov å plassere blokker imens du kjører minecart.");
                 event.setCancelled(true);
+                return;
             }
         }
 
