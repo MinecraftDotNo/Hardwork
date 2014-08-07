@@ -168,7 +168,7 @@ public class UserHandler {
      */
     public boolean userExists(Player p)
     {
-    	return null != this.sqlHandler.getColumn("SELECT `id` FROM `Minecraftno`.`users` WHERE `uuid` = '" + p.getUniqueId() + "'");
+    	return null != this.sqlHandler.getColumn("SELECT id FROM Minecraftno.users WHERE uuid='" + p.getUniqueId() + "' OR (name='" + p.getName() + "' AND uuid='ingen')");
     }
 
     public boolean isRegPlayer(Player player) {
