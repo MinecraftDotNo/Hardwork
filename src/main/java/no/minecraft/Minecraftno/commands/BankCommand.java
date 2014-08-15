@@ -259,7 +259,7 @@ public class BankCommand extends MinecraftnoCommand {
 
         // Verify our calculation.
         if (amount < 0 || (blocks * 9) + ingots != amount) {
-            player.sendMessage(getErrorChatColor() + "Jim kan ikke mattematikk :(");
+            player.sendMessage(getErrorChatColor() + "Jim kan ikke mattematikk :( Prøvde å ta ut " + blocks + " blokker og " + ingots + " ingots, med det blir ikke " + amount + " til sammen.");
             return;
         }
 
