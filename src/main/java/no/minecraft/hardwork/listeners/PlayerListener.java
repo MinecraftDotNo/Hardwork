@@ -14,7 +14,7 @@ public class PlayerListener implements Listener {
         this.hardwork = hardwork;
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerLogin(PlayerLoginEvent event) {
         UserHandler userHandler = this.hardwork.getUserHandler();
 
