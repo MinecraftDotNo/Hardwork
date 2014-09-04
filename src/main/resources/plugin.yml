@@ -229,8 +229,8 @@ commands:
     usage: /<command>
 
   mute:
-    description: Mute valgt bruker.
-    usage: /<command> [navn]
+    description: Mute eller unmute valgt bruker.
+    usage: /<command> [add/remove] [navn]
 
   t:
     description: t on/off/melding
