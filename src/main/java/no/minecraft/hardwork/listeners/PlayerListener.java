@@ -5,7 +5,7 @@ import no.minecraft.hardwork.handlers.UserHandler;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 
 public class PlayerListener implements Listener {
     private Hardwork hardwork;
@@ -15,7 +15,7 @@ public class PlayerListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onPlayerLogin(PlayerLoginEvent event) {
+    public void onPlayerJoin(PlayerJoinEvent event) {
         UserHandler userHandler = this.hardwork.getUserHandler();
 
         userHandler.clearCachedUser(userHandler.getUser(event.getPlayer().getUniqueId()));
