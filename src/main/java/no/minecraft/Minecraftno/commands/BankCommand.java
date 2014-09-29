@@ -192,6 +192,9 @@ public class BankCommand extends MinecraftnoCommand {
      * @param amount Amount of gold.
      */
     private void bankUtCommand(Player player, int amount) {
+    	int ingotStack = Material.GOLD_INGOT.getMaxStackSize();
+    	int blockStack = Material.GOLD_BLOCK.getMaxStackSize();
+    
         int maxEither = 0; // Empty inventory slots = 64 of either type.
         int maxIngots = 0; // Inventory slots with ingots = 64 - number of ingots in slot.
         int maxBlocks = 0; // Inventory slots with blocks = 64 - number of blocks in slot.
@@ -199,7 +202,7 @@ public class BankCommand extends MinecraftnoCommand {
         ItemStack[] itemStacks = player.getInventory().getContents();
         for (ItemStack stack : itemStacks) {
             if (stack == null || stack.getType() == Material.AIR) {
-                maxEither += player.getInventory().getMaxStackSize();
+                maxEither++;
             } else if (stack.getType() == Material.GOLD_INGOT) {
                 maxIngots += stack.getMaxStackSize() - stack.getAmount();
             } else if (stack.getType() == Material.GOLD_BLOCK) {
@@ -207,50 +210,72 @@ public class BankCommand extends MinecraftnoCommand {
             }
         }
 
+		player.sendMessage(ChatColor.GRAY + " - Du har plass til " + maxBlocks + " blokker, " + maxIngots + " ingots, og har " + maxEither + " ledige slots.");
+
         // Absolute maximum number of gold we can fit in the inventory.
-        int absMax = maxIngots + (maxBlocks * 9) + (maxEither * 9);
+        int absMax = maxIngots + (maxBlocks * 9) + ((maxEither * ingotStack) * 9);
+
+		player.sendMessage(ChatColor.GRAY + " - Det betyr totalt " + absMax + " gull.");
 
         // Trying to withdraw more than we can possibly fit?
         if (amount > absMax)
             amount = absMax;
 
+		player.sendMessage(ChatColor.GRAY + " - Prøver å ta ut " + amount + " gull...");
+
         // The number of blocks and ingots we'd like to fit in the inventory.
         int optimalBlocks = (int) ((double) amount / (double) 9);
         int optimalIngots = amount % 9;
+
+		player.sendMessage(ChatColor.GRAY + " - Optimalt sett er det " + optimalBlocks + " blokker og " + optimalIngots + " ingots.");
 
         // The number of blocks nad ingots we will place in the inventory.
         int blocks = 0;
         int ingots = 0;
 
         // Can we fit all the blocks?
-        if (optimalBlocks <= maxEither + maxBlocks) {
+        if (optimalBlocks <= (maxEither * blockStack) + maxBlocks) {
+        	player.sendMessage(ChatColor.GRAY + " - Det er i alle fall plass til alle blokkene :)");
+        
             // Yes :)
             blocks = optimalBlocks;
 
             // How many "either slots" did we spend?
-            int spentEither = Math.abs(maxBlocks - blocks);
+            int spentEither = (int) Math.ceil((maxBlocks - blocks < 0 ? Math.abs(maxBlocks - blocks) : 0) / blockStack);
+
+			player.sendMessage(ChatColor.GRAY + " - Vi trenger " + spentEither + " tomme slots til blokker.");
 
             // Can we fit the ingots in there too?
-            if (optimalIngots <= (maxEither - spentEither) + maxIngots) {
+            if (optimalIngots <= ((maxEither - spentEither) * ingotStack) + maxIngots) {
+            	player.sendMessage(ChatColor.GRAY + " - og alle ingotene. Topp stemning!");
+            
                 // Yes! :) All is well, and I have a cigar!
                 ingots = optimalIngots;
             } else {
+            	player.sendMessage(ChatColor.GRAY + " - men ikke alle ingotene. Reduserer uttaket.");
+            
                 // No :( Fit what we can.
-                ingots = maxIngots + (maxEither - spentEither);
+                ingots = maxIngots + ((maxEither - spentEither) * ingotStack);
                 amount -= optimalIngots - ingots;
             }
         } else {
+        	player.sendMessage(ChatColor.GRAY + " - Du har ikke plass til så mange blocks. Bruker noen ledige slots :)");
+        
             // No. This is all the blocks we can fit.
-            blocks = maxEither + maxBlocks;
+            blocks = (maxEither * blockStack) + maxBlocks;
 
             // How much is missing?
             int remainingBlocks = optimalBlocks - blocks;
 
             // Can we fit the remainder as ingots?
             if (optimalIngots + (remainingBlocks * 9) <= maxIngots) {
+            	player.sendMessage(ChatColor.GRAY + " - Resten av gullet fikk plass som ingots, så uttaket er komplett :)");
+            
                 // Heck yes! :)
                 ingots = optimalIngots + (remainingBlocks * 9);
             } else {
+            	player.sendMessage(ChatColor.GRAY + " - Det er ikke plass til alle ingotene heller. Reduserer uttaket.");
+            
                 // No :( Fit what we can.
                 ingots = maxIngots;
                 amount -= (optimalIngots + (remainingBlocks * 9)) - ingots;
