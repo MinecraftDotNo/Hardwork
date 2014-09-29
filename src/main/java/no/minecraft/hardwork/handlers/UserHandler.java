@@ -46,7 +46,8 @@ public class UserHandler implements Handler, DataConsumer {
 
     public void onEnable() {
         this.homesFile = new File(this.hardwork.getPlugin().getDataFolder(), "homes.yml");
-        this.homes = YamlConfiguration.loadConfiguration(this.homesFile);
+
+        this.loadHomes();
 
         Scoreboard scoreboard = this.hardwork.getPlugin().getServer().getScoreboardManager().getMainScoreboard();
 
@@ -58,11 +59,7 @@ public class UserHandler implements Handler, DataConsumer {
     }
 
     public void onDisable() {
-        try {
-            this.homes.save(this.homesFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        this.saveHomes();
     }
 
     public void prepareStatements() throws SQLException {
@@ -417,11 +414,25 @@ public class UserHandler implements Handler, DataConsumer {
         }
     }
 
+    public void loadHomes() {
+        this.homes = YamlConfiguration.loadConfiguration(this.homesFile);
+    }
+
+    public void saveHomes() {
+        try {
+            this.homes.save(this.homesFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void setHome(User user, Location location) {
         this.homes.set(Integer.toString(user.getId()) + ".world", location.getWorld().getName());
         this.homes.set(Integer.toString(user.getId()) + ".x", location.getBlockX());
         this.homes.set(Integer.toString(user.getId()) + ".y", location.getBlockY());
         this.homes.set(Integer.toString(user.getId()) + ".z", location.getBlockZ());
+
+        this.saveHomes();
     }
 
     public Location getHome(User user) {
@@ -443,5 +454,7 @@ public class UserHandler implements Handler, DataConsumer {
 
     public void deleteHome(User user) {
         this.homes.set(Integer.toString(user.getId()), null);
+
+        this.saveHomes();
     }
 }
