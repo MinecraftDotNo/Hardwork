@@ -4,17 +4,23 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import no.minecraft.hardwork.Hardwork;
 import no.minecraft.hardwork.User;
+import no.minecraft.hardwork.database.DataConsumer;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.*;
 import java.util.Date;
 import java.util.UUID;
 
-public class UserHandler {
+public class UserHandler implements Handler, DataConsumer {
     private Hardwork hardwork;
 
     private PreparedStatement queryUserExists;
@@ -31,17 +37,31 @@ public class UserHandler {
 
     private PreparedStatement queryLastLogin;
 
+    private File homesFile;
+    private YamlConfiguration homes;
+
     public UserHandler(Hardwork hardwork) {
         this.hardwork = hardwork;
     }
 
     public void onEnable() {
+        this.homesFile = new File(this.hardwork.getPlugin().getDataFolder(), "homes.yml");
+        this.homes = YamlConfiguration.loadConfiguration(this.homesFile);
+
         Scoreboard scoreboard = this.hardwork.getPlugin().getServer().getScoreboardManager().getMainScoreboard();
 
         for (Team team : scoreboard.getTeams()) {
             for (OfflinePlayer player : team.getPlayers()) {
                 team.removePlayer(player);
             }
+        }
+    }
+
+    public void onDisable() {
+        try {
+            this.homes.save(this.homesFile);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -395,5 +415,33 @@ public class UserHandler {
 
             team.addPlayer(player);
         }
+    }
+
+    public void setHome(User user, Location location) {
+        this.homes.set(Integer.toString(user.getId()) + ".world", location.getWorld().getName());
+        this.homes.set(Integer.toString(user.getId()) + ".x", location.getBlockX());
+        this.homes.set(Integer.toString(user.getId()) + ".y", location.getBlockY());
+        this.homes.set(Integer.toString(user.getId()) + ".z", location.getBlockZ());
+    }
+
+    public Location getHome(User user) {
+        if (!this.homes.contains(Integer.toString(user.getId())))
+            return null;
+
+        World world = this.hardwork.getPlugin().getServer().getWorld(this.homes.getString(user.getId() + ".world"));
+
+        if (world == null)
+            return null;
+
+        return new Location(
+            world,
+            this.homes.getInt(user.getId() + ".x"),
+            this.homes.getInt(user.getId() + ".y"),
+            this.homes.getInt(user.getId() + ".z")
+        );
+    }
+
+    public void deleteHome(User user) {
+        this.homes.set(Integer.toString(user.getId()), null);
     }
 }

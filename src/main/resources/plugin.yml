@@ -148,14 +148,6 @@ commands:
     description: Endrer brukerstatus på gitte bruker
     usage: /<command> [spiller] [brukerstatus]
 
-  home:
-    description: Sender deg til home
-    usage: /<command>
-
-  sethome:
-    description: Setter din home location
-    usage: /<command>
-
   delwarp:
     description: Sletter gitt warp
     usage: /<command> [navn]
@@ -379,3 +371,15 @@ commands:
   irc:
     description: Hent tilgangskode for IRC.
     usage: /<command>
+
+  sethome:
+    description: Sett home.
+    usage: /<command> <player>
+
+  home:
+    description: Gå til home.
+    usage: /<command> <player>
+
+  delhome:
+    description: Slett home.
+    usage: /<command> <player>

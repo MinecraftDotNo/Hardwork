@@ -2,6 +2,9 @@ package no.minecraft.hardwork;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
+import no.minecraft.hardwork.commands.DelHomeCommand;
+import no.minecraft.hardwork.commands.HomeCommand;
+import no.minecraft.hardwork.commands.SetHomeCommand;
 import no.minecraft.hardwork.commands.WhoCommand;
 import no.minecraft.hardwork.database.DataConsumer;
 import no.minecraft.hardwork.database.Database;
@@ -17,16 +20,27 @@ public class Hardwork implements DataConsumer {
     private Database database;
     private CacheManager cacheManager;
 
-    private final UserHandler userHandler = new UserHandler(this);
+    private UserHandler userHandler;
 
     public Hardwork(JavaPlugin plugin) {
         this.plugin = plugin;
     }
 
     public void onEnable() {
+        this.userHandler = new UserHandler(this);
+
+        this.userHandler.onEnable();
+
         this.plugin.getServer().getPluginManager().registerEvents(new PlayerListener(this), this.plugin);
 
+        this.plugin.getCommand("delhome").setExecutor(new DelHomeCommand(this));
+        this.plugin.getCommand("home").setExecutor(new HomeCommand(this));
+        this.plugin.getCommand("sethome").setExecutor(new SetHomeCommand(this));
         this.plugin.getCommand("who").setExecutor(new WhoCommand(this));
+    }
+
+    public void onDisable() {
+        this.userHandler.onDisable();
     }
 
     public JavaPlugin getPlugin() {
