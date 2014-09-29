@@ -4,6 +4,8 @@ import no.minecraft.Minecraftno.Minecraftno;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
+import java.util.Collection;
+
 public class SavePlayerDataCommand extends MinecraftnoCommand {
 
     public SavePlayerDataCommand(Minecraftno instance) {
@@ -14,8 +16,8 @@ public class SavePlayerDataCommand extends MinecraftnoCommand {
     @Override
     public final boolean onPlayerCommand(Player player, Command command, String label, String[] args) {
         if (args.length == 0) {
-            Player[] onlinePlayers = this.plugin.getServer().getOnlinePlayers();
-            player.sendMessage(getInfoChatColor() + "Lagrer data for: " + onlinePlayers.length + " spillere...");
+            Collection<? extends Player> onlinePlayers = this.plugin.getServer().getOnlinePlayers();
+            player.sendMessage(getInfoChatColor() + "Lagrer data for: " + onlinePlayers.size() + " spillere...");
             for (Player p : onlinePlayers) {
                 p.saveData();
             }

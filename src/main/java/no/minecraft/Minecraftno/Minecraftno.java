@@ -307,8 +307,6 @@ public class Minecraftno extends JavaPlugin {
         getCommand("del").setExecutor(new DelCommand(this));
         getCommand("unban").setExecutor(new UnbanCommand(this));
         getCommand("mod").setExecutor(new ModCommand(this));
-        getCommand("home").setExecutor(new HomeCommand(this));
-        getCommand("sethome").setExecutor(new SetHomeCommand(this));
         getCommand("delwarp").setExecutor(new DelWarpCommand(this, wh));
         getCommand("reg").setExecutor(new RegCommand(this));
         getCommand("c").setExecutor(new CCommand(this));
@@ -389,7 +387,7 @@ public class Minecraftno extends JavaPlugin {
     }
 
     public User playerMatchIRC(String name) {
-        if (getServer().getOnlinePlayers().length < 1) {
+        if (getServer().getOnlinePlayers().size() < 1) {
             return null;
         }
 

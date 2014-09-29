@@ -783,7 +783,7 @@ public class MinecraftnoPlayerListener implements Listener {
         String name = event.getPlayer().getName();
         ConfigurationServer cfg = this.plugin.getGlobalConfiguration();
         int Maxplayers = cfg.maxplayers;
-        int OnlinePlayers = plugin.getServer().getOnlinePlayers().length - 1;
+        int OnlinePlayers = plugin.getServer().getOnlinePlayers().size() - 1;
 
         BanData banData = this.userHandler.getBanData(player.getName());
         if (banData != null) {

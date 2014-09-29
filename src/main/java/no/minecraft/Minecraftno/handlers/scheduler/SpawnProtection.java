@@ -18,7 +18,7 @@ public class SpawnProtection {
 
     public class Run implements Runnable {
         public void run() {
-            if (Bukkit.getServer().getOnlinePlayers().length > 0) {
+            if (Bukkit.getServer().getOnlinePlayers().size() > 0) {
                 checkEntityPos();
             }
         }

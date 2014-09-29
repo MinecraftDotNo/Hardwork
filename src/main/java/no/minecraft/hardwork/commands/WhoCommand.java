@@ -23,7 +23,7 @@ public class WhoCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0) {
-            Player[] onlinePlayers = this.hardwork.getPlugin().getServer().getOnlinePlayers();
+            Collection<? extends Player> onlinePlayers = this.hardwork.getPlugin().getServer().getOnlinePlayers();
 
             Map<Integer, List<String>> players = new HashMap<>();
             for (Player player : onlinePlayers) {
@@ -44,7 +44,7 @@ public class WhoCommand implements CommandExecutor {
                 output.add(StringUtils.join(sort, ChatColor.RESET + ", "));
             }
 
-            sender.sendMessage(ChatColor.GREEN + "Påloggede spillere (" + onlinePlayers.length + "): " + StringUtils.join(output, ChatColor.RESET + ", "));
+            sender.sendMessage(ChatColor.GREEN + "Påloggede spillere (" + onlinePlayers.size() + "): " + StringUtils.join(output, ChatColor.RESET + ", "));
 
             return true;
         }

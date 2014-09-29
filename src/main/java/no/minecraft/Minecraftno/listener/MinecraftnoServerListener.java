@@ -18,7 +18,7 @@ public class MinecraftnoServerListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onServerListPing(ServerListPingEvent event) {
         ConfigurationServer cfg = this.plugin.getGlobalConfiguration();
-        int OnlinePlayers = this.plugin.getServer().getOnlinePlayers().length - 1;
+        int OnlinePlayers = this.plugin.getServer().getOnlinePlayers().size() - 1;
 
         if (OnlinePlayers > cfg.maxplayers) {
             event.setMaxPlayers(OnlinePlayers);

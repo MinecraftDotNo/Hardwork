@@ -72,7 +72,7 @@ public class ChatHandler {
     private boolean isSlowMode(Player player, String msg) {
         if (this.userHandler.getOnlineUsers().get(player).getAccessLevel() < 2) {
             long curtime = System.currentTimeMillis();
-            int playeronline = +Bukkit.getServer().getOnlinePlayers().length;
+            int playeronline = +Bukkit.getServer().getOnlinePlayers().size();
             if (this.userHandler.getSlowMode(player) != 0) {
                 if ((((this.userHandler.getSlowMode(player) + (10000 + (100 * playeronline))) - System.currentTimeMillis()) / 1000) > 0) {
                     player.sendMessage(ChatColor.RED + "Du må vente " + (((this.userHandler.getSlowMode(player) + (10000 + (100 * playeronline))) - System.currentTimeMillis()) / 1000) + " sekunder før du kan prate i hovedchat.");

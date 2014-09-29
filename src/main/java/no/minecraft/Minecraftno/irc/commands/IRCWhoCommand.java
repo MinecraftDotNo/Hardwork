@@ -21,7 +21,7 @@ public class IRCWhoCommand implements IRCBotCommand {
     }
 
     public void handleMessage(PircBot bot, String channel, String sender, String message) {
-        if (this.plugin.getServer().getOnlinePlayers().length > 0) {
+        if (this.plugin.getServer().getOnlinePlayers().size() > 0) {
             String text = getOnlinePlayers();
             if (text.length() > 512) {
                 if (text.length() > 1024) {
@@ -51,15 +51,15 @@ public class IRCWhoCommand implements IRCBotCommand {
 				System.out.println("Running: " + offset + size);
 			}*/
             //bot.sendMessage(channel, getOnlinePlayers());
-            bot.sendNotice(channel, ("Antall spillere: " + this.plugin.getServer().getOnlinePlayers().length + "."));
+            bot.sendNotice(channel, ("Antall spillere: " + this.plugin.getServer().getOnlinePlayers().size() + "."));
         } else {
-            bot.sendNotice(channel, ("Antall spillere: " + this.plugin.getServer().getOnlinePlayers().length + "."));
+            bot.sendNotice(channel, ("Antall spillere: " + this.plugin.getServer().getOnlinePlayers().size() + "."));
         }
     }
 
     public String getOnlinePlayers() {
 
-        Player[] onlinePlayers = this.plugin.getServer().getOnlinePlayers();
+        Player[] onlinePlayers = (Player[]) this.plugin.getServer().getOnlinePlayers().toArray();
         String[] tech = this.userHandler.getUsersSortOnIRCAccess(5, onlinePlayers);
         String[] stab = this.userHandler.getUsersSortOnIRCAccess(4, onlinePlayers);
         String[] vakt = this.userHandler.getUsersSortOnIRCAccess(3, onlinePlayers);

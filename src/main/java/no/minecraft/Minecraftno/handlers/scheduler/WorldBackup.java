@@ -55,7 +55,7 @@ public class WorldBackup {
     }
 
     public void runBackup(String dirWay) {
-        if (Bukkit.getServer().getOnlinePlayers().length > 0) {
+        if (Bukkit.getServer().getOnlinePlayers().size() > 0) {
             final String backup = dirWay + File.separator + Util.getDateTime();
             final ArrayList<File> inputFiles = new ArrayList<File>();
             final ArrayList<File> outputFiles = new ArrayList<File>();
