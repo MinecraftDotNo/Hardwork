@@ -6,6 +6,8 @@ import org.bukkit.entity.Player;
 import org.jibble.pircbot.Colors;
 import org.jibble.pircbot.PircBot;
 
+import java.util.Collection;
+
 public class IRCWhoCommand implements IRCBotCommand {
 
     private final Minecraftno plugin;
@@ -58,8 +60,9 @@ public class IRCWhoCommand implements IRCBotCommand {
     }
 
     public String getOnlinePlayers() {
+        Collection<? extends Player> players = this.plugin.getServer().getOnlinePlayers();
 
-        Player[] onlinePlayers = (Player[]) this.plugin.getServer().getOnlinePlayers().toArray();
+        Player[] onlinePlayers = players.toArray(new Player[players.size()]);
         String[] tech = this.userHandler.getUsersSortOnIRCAccess(5, onlinePlayers);
         String[] stab = this.userHandler.getUsersSortOnIRCAccess(4, onlinePlayers);
         String[] vakt = this.userHandler.getUsersSortOnIRCAccess(3, onlinePlayers);
