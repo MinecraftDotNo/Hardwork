@@ -44,6 +44,7 @@ public class UserHandler implements Handler, DataConsumer {
         this.hardwork = hardwork;
     }
 
+    @Override
     public void onEnable() {
         this.homesFile = new File(this.hardwork.getPlugin().getDataFolder(), "homes.yml");
 
@@ -58,10 +59,12 @@ public class UserHandler implements Handler, DataConsumer {
         }
     }
 
+    @Override
     public void onDisable() {
         this.saveHomes();
     }
 
+    @Override
     public void prepareStatements() throws SQLException {
         Connection conn = this.hardwork.getDatabase().getConnection();
 
@@ -83,6 +86,8 @@ public class UserHandler implements Handler, DataConsumer {
     public boolean userExists(UUID uuid, String name) {
         boolean exists = false;
 
+        this.hardwork.getDatabase().getConnection();
+
         try {
             this.queryUserExists.setString(1, uuid.toString());
             this.queryUserExists.setString(2, name);
@@ -90,10 +95,15 @@ public class UserHandler implements Handler, DataConsumer {
             ResultSet result = this.queryUserExists.executeQuery();
 
             exists = result.next();
+        } catch (SQLException exception) {
+            this.hardwork.getLogger().warning("SQLException while checking for user existence!");
+            exception.printStackTrace();
+        }
 
+        try {
             this.queryUserExists.clearParameters();
         } catch (SQLException exception) {
-            this.hardwork.getPlugin().getLogger().warning("SQLException while checking for user existence!");
+            this.hardwork.getLogger().warning("SQLException while clearing query parameters!");
             exception.printStackTrace();
         }
 
@@ -103,8 +113,10 @@ public class UserHandler implements Handler, DataConsumer {
     public User createUser(UUID uuid, String name, int accessLevel) {
         User user = null;
 
+        Connection conn = this.hardwork.getDatabase().getConnection();
+
         try {
-            this.hardwork.getDatabase().getConnection().setAutoCommit(false);
+            conn.setAutoCommit(false);
 
             this.queryInsertUser.setString(1, uuid.toString());
             this.queryInsertUser.setString(2, name);
@@ -114,15 +126,13 @@ public class UserHandler implements Handler, DataConsumer {
             if (userId <= 0)
                 throw new SQLException("Unexpected result from RETURN_GENERATED_KEYS query!");
 
-            this.queryInsertUser.clearParameters();
-
             this.queryInsertAccess.setInt(1, userId);
             this.queryInsertAccess.setInt(2, accessLevel);
 
             if (this.queryInsertAccess.executeUpdate() != 1)
                 throw new SQLException("Unexpected number of affected rows!");
 
-            this.queryInsertAccess.clearParameters();
+            conn.commit();
 
             user = new User(
                 userId,
@@ -136,7 +146,21 @@ public class UserHandler implements Handler, DataConsumer {
         }
 
         try {
-            this.hardwork.getDatabase().getConnection().setAutoCommit(true);
+            this.queryInsertUser.clearParameters();
+        } catch (SQLException exception) {
+            this.hardwork.getLogger().warning("SQLException while clearing query parameters!");
+            exception.printStackTrace();
+        }
+
+        try {
+            this.queryInsertAccess.clearParameters();
+        } catch (SQLException exception) {
+            this.hardwork.getLogger().warning("SQLException while clearing query parameters!");
+            exception.printStackTrace();
+        }
+
+        try {
+            conn.setAutoCommit(true);
         } catch (SQLException exception) {
             this.hardwork.getPlugin().getLogger().severe("SQLException while enabling auto commit!");
             exception.printStackTrace();
@@ -148,7 +172,11 @@ public class UserHandler implements Handler, DataConsumer {
     public User updateUser(int id, UUID uuid, String name, int accessLevel) {
         User user = null;
 
+        Connection conn = this.hardwork.getDatabase().getConnection();
+
         try {
+            conn.setAutoCommit(false);
+
             this.queryUpdateUser.setString(1, uuid.toString());
             this.queryUpdateUser.setString(2, name);
             this.queryUpdateUser.setInt(3, id);
@@ -156,15 +184,13 @@ public class UserHandler implements Handler, DataConsumer {
             if (this.queryUpdateUser.executeUpdate() != 1)
                 throw new SQLException("Unexpected number of affected rows!");
 
-            this.queryUpdateUser.clearParameters();
-
             this.queryUpdateAccess.setInt(1, accessLevel);
             this.queryUpdateAccess.setInt(2, id);
 
             if (this.queryUpdateAccess.executeUpdate() != 1)
                 throw new SQLException("Unexpected number of affected rows!");
 
-            this.queryUpdateAccess.clearParameters();
+            conn.commit();
 
             user = new User(
                 id,
@@ -174,6 +200,27 @@ public class UserHandler implements Handler, DataConsumer {
             );
         } catch (SQLException exception) {
             this.hardwork.getPlugin().getLogger().warning("SQLException while updating user!");
+            exception.printStackTrace();
+        }
+
+        try {
+            this.queryUpdateUser.clearParameters();
+        } catch (SQLException exception) {
+            this.hardwork.getLogger().warning("SQLException while clearing query parameters!");
+            exception.printStackTrace();
+        }
+
+        try {
+            this.queryUpdateAccess.clearParameters();
+        } catch (SQLException exception) {
+            this.hardwork.getLogger().warning("SQLException while clearing query parameters!");
+            exception.printStackTrace();
+        }
+
+        try {
+            conn.setAutoCommit(true);
+        } catch (SQLException exception) {
+            this.hardwork.getLogger().warning("SQLException while enabling auto commit!");
             exception.printStackTrace();
         }
 
@@ -189,9 +236,9 @@ public class UserHandler implements Handler, DataConsumer {
 
         User user = null;
 
-        try {
-            this.hardwork.getDatabase().getConnection();
+        this.hardwork.getDatabase().getConnection();
 
+        try {
             this.queryUserId.setInt(1, id);
 
             ResultSet result = this.queryUserId.executeQuery();
@@ -209,9 +256,15 @@ public class UserHandler implements Handler, DataConsumer {
                     result.getInt("accesslevel")
                 );
             }
+        } catch (SQLException exception) {
+            this.hardwork.getLogger().warning("SQLException while fetching user!");
+            exception.printStackTrace();
+        }
 
+        try {
             this.queryUserId.clearParameters();
         } catch (SQLException exception) {
+            this.hardwork.getLogger().warning("SQLException while clearing query parameters!");
             exception.printStackTrace();
         }
 
@@ -245,9 +298,9 @@ public class UserHandler implements Handler, DataConsumer {
 
         User user = null;
 
-        try {
-            this.hardwork.getDatabase().getConnection();
+        this.hardwork.getDatabase().getConnection();
 
+        try {
             this.queryUserUuid.setString(1, uuid.toString());
 
             ResultSet result = this.queryUserUuid.executeQuery();
@@ -258,9 +311,15 @@ public class UserHandler implements Handler, DataConsumer {
                     result.getString("name"),
                     result.getInt("accesslevel")
                 );
+        } catch (SQLException exception) {
+            this.hardwork.getLogger().warning("SQLException while fetching user!");
+            exception.printStackTrace();
+        }
 
+        try {
             this.queryUserUuid.clearParameters();
         } catch (SQLException exception) {
+            this.hardwork.getLogger().warning("SQLException while clearing query parameters!");
             exception.printStackTrace();
         }
 
@@ -293,9 +352,9 @@ public class UserHandler implements Handler, DataConsumer {
 
         User user = null;
 
-        try {
-            this.hardwork.getDatabase().getConnection();
+        this.hardwork.getDatabase().getConnection();
 
+        try {
             this.queryUserName.setString(1, name);
 
             ResultSet result = this.queryUserName.executeQuery();
@@ -314,9 +373,15 @@ public class UserHandler implements Handler, DataConsumer {
                     result.getInt("accesslevel")
                 );
             }
+        } catch (SQLException exception) {
+            this.hardwork.getLogger().warning("SQLException while fetching user!");
+            exception.printStackTrace();
+        }
 
+        try {
             this.queryUserName.clearParameters();
         } catch (SQLException exception) {
+            this.hardwork.getLogger().warning("SQLException while clearing query parameters!");
             exception.printStackTrace();
         }
 
@@ -344,18 +409,24 @@ public class UserHandler implements Handler, DataConsumer {
     public Date getUserLastLogin(User user) {
         Date date = null;
 
-        try {
-            this.hardwork.getDatabase().getConnection();
+        this.hardwork.getDatabase().getConnection();
 
+        try {
             this.queryLastLogin.setInt(1, user.getId());
 
             ResultSet result = this.queryLastLogin.executeQuery();
 
             if (result.next())
                 date = new Date((long) result.getInt("time") * 1000);
+        } catch (SQLException exception) {
+            this.hardwork.getLogger().warning("SQLException while fetching last user login timestamp!");
+            exception.printStackTrace();
+        }
 
+        try {
             this.queryLastLogin.clearParameters();
         } catch (SQLException exception) {
+            this.hardwork.getLogger().warning("SQLException while clearing query parameters!");
             exception.printStackTrace();
         }
 
