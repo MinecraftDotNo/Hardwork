@@ -2,7 +2,6 @@ package no.minecraft.hardwork.listeners;
 
 import no.minecraft.hardwork.Hardwork;
 import no.minecraft.hardwork.handlers.BlockHandler;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -23,6 +22,7 @@ public class BlockListener implements Listener {
     public void onBlockPlace(BlockPlaceEvent event) {
         Block block = event.getBlock();
 
+        // Yes, this is ugly. (BP is set in legacy code, then unset here.)
         if (block.getType() == Material.SAPLING) {
             this.hardwork.getBlockHandler().deleteBlockOwner(block);
         }

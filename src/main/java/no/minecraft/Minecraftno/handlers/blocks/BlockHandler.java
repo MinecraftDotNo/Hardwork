@@ -38,9 +38,7 @@ public class BlockHandler extends TimerTask {
      */
 
     public void updateBlockProtection(int playerId, Block block) {
-        String statment = ("UPDATE blocks SET player=? WHERE x=? AND y=? AND z=? AND world=?");
-        BlockData lbd = new BlockData(3, statment, playerId, 0, block.getX(), block.getY(), block.getZ(), block.getWorld().getName(), null);
-        getblockdata.add(lbd);
+        this.plugin.getHardwork().getBlockHandler().setBlockOwner(block, playerId);
     }
 
     /**
@@ -60,9 +58,7 @@ public class BlockHandler extends TimerTask {
      */
 
     public void deleteBlockProtection(Location loc) {
-        String statment = ("DELETE FROM blocks WHERE x=? AND y=? AND z=? AND world=?");
-        BlockData lbd = new BlockData(2, statment, 0, 0, loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), loc.getWorld().getName(), null);
-        getblockdata.add(lbd);
+        this.plugin.getHardwork().getBlockHandler().deleteBlockOwner(loc);
     }
 
     /**
@@ -82,9 +78,7 @@ public class BlockHandler extends TimerTask {
      */
 
     public void setBlockProtection(int playerId, Location l) {
-        String statment = ("REPLACE INTO `blocks` (`x`, `y`, `z`, `world`, `player`) VALUES (?, ?, ?, ?, ?)");
-        BlockData lbd = new BlockData(1, statment, playerId, 0, l.getBlockX(), l.getBlockY(), l.getBlockZ(), l.getWorld().getName(), null);
-        getblockdata.add(lbd);
+        this.plugin.getHardwork().getBlockHandler().setBlockOwner(l, playerId);
     }
 
     /**

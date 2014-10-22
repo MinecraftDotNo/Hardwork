@@ -610,4 +610,8 @@ public class Minecraftno extends JavaPlugin {
         }
         return false;
     }
+
+    public Hardwork getHardwork() {
+        return this.hardwork;
+    }
 }

@@ -91,16 +91,18 @@ public class BlockHandler implements Handler, DataConsumer {
     public User getBlockOwner(String world, int x, int y, int z) {
         User owner = null;
 
-        try {
-            this.hardwork.getDatabase().getConnection();
+        this.hardwork.getDatabase().getConnection();
 
+        try {
             this.queryGetBlockOwner.setString(1, world);
             this.queryGetBlockOwner.setInt(2, x);
+            this.queryGetBlockOwner.setInt(3, y);
+            this.queryGetBlockOwner.setInt(4, z);
 
             ResultSet result = this.queryGetBlockOwner.executeQuery();
 
             if (result.next())
-                owner = this.hardwork.getUserHandler().getUser(result.getInt(0));
+                owner = this.hardwork.getUserHandler().getUser(result.getInt(1));
         } catch (SQLException exception) {
             this.hardwork.getLogger().warning("SQLException while fetching block owner!");
             exception.printStackTrace();
