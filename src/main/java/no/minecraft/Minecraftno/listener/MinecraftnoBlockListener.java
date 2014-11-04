@@ -88,17 +88,14 @@ public class MinecraftnoBlockListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onDispense(BlockDispenseEvent event) {
         ItemStack item = event.getItem();
+        
+        Material[] mats = { Material.MONSTER_EGG, Material.EGG, Material.FIREBALL, Material.TNT };
 
-        if (item.getType() == Material.MONSTER_EGG) {
-            event.setCancelled(true);
-        }
-
-        if (item.getType() == Material.EGG) {
-            event.setCancelled(true);
-        }
-
-        if (item.getType() == Material.FIREBALL) {
-            event.setCancelled(true);
+        for (Material mat : mats) {
+        	if (mat == item.getType()) {
+        		event.setCancelled(true);
+        		return;
+        	}
         }
     }
 
