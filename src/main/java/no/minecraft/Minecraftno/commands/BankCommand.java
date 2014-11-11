@@ -241,7 +241,12 @@ public class BankCommand extends MinecraftnoCommand {
             blocks = optimalBlocks;
 
             // How many "either slots" did we spend?
-            int spentEither = (int) Math.ceil((maxBlocks - blocks < 0 ? Math.abs(maxBlocks - blocks) : 0) / blockStack);
+            int diff = maxBlocks - blocks;
+            int spentEither = 0;
+            if (diff < 0) {
+                int overflow = Math.abs(diff);
+                spentEither = (int) Math.ceil((double) overflow / (double) blockStack);
+            }
 
 			player.sendMessage(ChatColor.GRAY + " - Vi trenger " + spentEither + " tomme slots til blokker.");
 
