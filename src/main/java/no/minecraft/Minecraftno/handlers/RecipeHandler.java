@@ -65,6 +65,6 @@ public class RecipeHandler {
         this.plugin.getServer().addRecipe(new ShapedRecipe(new ItemStack(Material.SPIDER_EYE)).shape("  ", "wrw", "  ").setIngredient('w', Material.NETHER_WARTS).setIngredient('r', Material.ROTTEN_FLESH));
 
         // Glowstone
-        this.plugin.getServer().addRecipe(new ShapedRecipe(new ItemStack(Material.GLOWSTONE)).shape("ggg", "gjg", "ggg").setIngredient('g', Material.GLASS).setIngredient('j', Material.JACK_O_LANTERN));
+        this.plugin.getServer().addRecipe(new ShapedRecipe(new ItemStack(Material.GLOWSTONE, 8)).shape("ggg", "gjg", "ggg").setIngredient('g', Material.GLASS).setIngredient('j', Material.JACK_O_LANTERN));
     }
 }
