@@ -194,7 +194,7 @@ public class BlockInfoHandler {
      * @param String world
      * @return Integer Returns zero (0) if no owner found.
      */
-    public int getOwnerID(int x, int z, int y, String world) {
+    public int getOwnerID(int x, int y, int z, String world) {
         int res = this.sqlHandler.getColumnInt("SELECT player FROM blocks WHERE x=" + x + " AND y=" + y + " AND z=" + z + " AND world='" + world + "'", "player");
         if (res != 0) {
             return res;
@@ -208,6 +208,7 @@ public class BlockInfoHandler {
      * 
      * @see canInteractWithBlock(int, int, int, String, int, boolean)
      * @param block
+     * @param player
      * @param checkGroup
      * @return
      */
@@ -260,7 +261,7 @@ public class BlockInfoHandler {
     			}
     		}
     	}
-    	
+
     	return ret;
     }
     
