@@ -10,6 +10,7 @@ import no.minecraft.Minecraftno.handlers.blocks.PrivateProtectionHandler;
 import no.minecraft.Minecraftno.handlers.enums.BlockLogReason;
 import no.minecraft.Minecraftno.handlers.enums.MinecraftnoLog;
 import no.minecraft.Minecraftno.handlers.player.UserHandler;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -31,6 +32,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.Bed;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MinecraftnoBlockListener implements Listener {
@@ -406,12 +408,12 @@ public class MinecraftnoBlockListener implements Listener {
             }
         }
 
+        /* Check rails */
         Block down = block.getRelative(BlockFace.DOWN);
-        if (down != null && down.getType() == Material.RAILS) {
-            // Owner of rail plz.
-            String owner = this.blockinfoHandler.getOwner(down);
-            if (owner != null && !owner.equalsIgnoreCase(player.getName())) {
-                player.sendMessage(ChatColor.RED + owner + " eier railen under, så du har ikke lov å plassere en blokk over den.");
+        Material[] railTypes = { Material.RAILS, Material.ACTIVATOR_RAIL, Material.POWERED_RAIL, Material.DETECTOR_RAIL };
+        if (down != null && Arrays.asList(railTypes).contains(down.getType())) {
+            if (this.blockinfoHandler.canInteractWithBlock(down, player, true) == false) {
+                player.sendMessage(ChatColor.RED + this.userHandler.getNameFromId(this.blockinfoHandler.getLastCheckedOwner()) + " eier railen under, så du har ikke lov å plassere en blokk over den.");
                 event.setCancelled(true);
                 return;
             }
