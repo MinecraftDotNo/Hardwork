@@ -54,13 +54,13 @@ public class Minecraftno extends JavaPlugin {
     // Handlers
     private final UserHandler userHandler = new UserHandler(this);
     private final BankHandler bankHandler = new BankHandler(this);
+    private final GroupLogHandler groupLogHandler = new GroupLogHandler(this);
+    private final GroupHandler groupHandler = new GroupHandler(this);
+    private final ChatHandler chathandler = new ChatHandler(this);
     private final BlockInfoHandler blockinfoHandler = new BlockInfoHandler(this);
     private final WarningHandler warningHandler = new WarningHandler(this);
     private final StartupHandler startupHandler = new StartupHandler(this);
     private final WorldHandler worldHandler = new WorldHandler(this);
-    private final GroupLogHandler groupLogHandler = new GroupLogHandler(this);
-    private final ChatHandler chathandler = new ChatHandler(this);
-    private final GroupHandler groupHandler = new GroupHandler(this);
     private final PrivateProtectionHandler privatePHandler = new PrivateProtectionHandler(this);
     private final SandtakHandler sandtakHandler = new SandtakHandler(this);
     private final NisseHandler nisseHandler = new NisseHandler(this);
