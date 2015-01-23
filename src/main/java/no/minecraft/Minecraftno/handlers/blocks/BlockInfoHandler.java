@@ -3,9 +3,11 @@ package no.minecraft.Minecraftno.handlers.blocks;
 import no.minecraft.Minecraftno.Minecraftno;
 import no.minecraft.Minecraftno.conf.ConfigurationServer;
 import no.minecraft.Minecraftno.conf.ConfigurationWorld;
+import no.minecraft.Minecraftno.handlers.GroupHandler;
 import no.minecraft.Minecraftno.handlers.MySQLHandler;
 import no.minecraft.Minecraftno.handlers.Util;
 import no.minecraft.Minecraftno.handlers.player.UserHandler;
+
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -27,6 +29,7 @@ public class BlockInfoHandler {
     private final Minecraftno plugin;
     private final MySQLHandler sqlHandler;
     private final UserHandler userHandler;
+    private final GroupHandler groupHandler;
 
     SimpleDateFormat dateFormat = Util.dateFormat;
 
@@ -34,13 +37,15 @@ public class BlockInfoHandler {
         this.plugin = instance;
         this.sqlHandler = instance.getSqlHandler();
         this.userHandler = instance.getUserHandler();
+        this.groupHandler = instance.getGroupHandler();
     }
 
     public ArrayList<String> getBlockLog(Block block, boolean idToName) {
         return getBlockLog(block.getLocation(), idToName);
     }
 
-    public ArrayList<String> getBlockLog(Location loc, boolean idToName) {
+    @SuppressWarnings("deprecation")
+	public ArrayList<String> getBlockLog(Location loc, boolean idToName) {
         World world = loc.getWorld();
         ConfigurationServer cfg = this.plugin.getGlobalConfiguration();
         ConfigurationWorld wcfg = cfg.get(world);
@@ -151,9 +156,16 @@ public class BlockInfoHandler {
         }
     }
 
+    /**
+     * <p>Indicates if a <code>Block</code> is protected in blocks table. Uses <code>getOwnerId(Block)</code><p>
+     * 
+     * @see getOwnerId(Block)
+     * @param block
+     * @return
+     */
     public boolean isProtected(Block block) {
-        String res = this.sqlHandler.getColumn("SELECT player FROM blocks WHERE x=" + block.getX() + " AND y=" + block.getY() + " AND z=" + block.getZ() + " AND world='" + block.getWorld().getName() + "'");
-        return res != null && !res.isEmpty();
+    	// Just call getOwnerID and check if returned ID is over null.
+    	return getOwnerId(block) > 0 ? true : false;
     }
 
     public String getOwner(Location loc) {
@@ -170,11 +182,81 @@ public class BlockInfoHandler {
     }
 
     public int getOwnerId(Block block) {
-        int res = this.sqlHandler.getColumnInt("SELECT player FROM blocks WHERE x=" + block.getX() + " AND y=" + block.getY() + " AND z=" + block.getZ() + " AND world='" + block.getWorld().getName() + "'", "player");
+        return getOwnerID(block.getX(), block.getY(), block.getZ(), block.getWorld().getName());
+    }
+
+    /**
+     * <p>Provides the user id of owner of a block at requested coordinates and world.</p>
+     * @param Integer x
+     * @param Integer z
+     * @param Integer y
+     * @param String world
+     * @return Integer Returns zero (0) if no owner found.
+     */
+    public int getOwnerID(int x, int z, int y, String world) {
+        int res = this.sqlHandler.getColumnInt("SELECT player FROM blocks WHERE x=" + x + " AND y=" + y + " AND z=" + z + " AND world='" + world + "'", "player");
         if (res != 0) {
             return res;
         } else {
             return 0;
         }
+    }
+    
+    /**
+     * <p>Checks if player can interact with block. See method <code>canInteractWithBlock(int, int, int, String, int, boolean)</code> for docs.</p>
+     * 
+     * @see canInteractWithBlock(int, int, int, String, int, boolean)
+     * @param block
+     * @param checkGroup
+     * @return
+     */
+    public boolean canInteractWithBlock(Block block, Player player, boolean checkGroup) {
+    	return canInteractWithBlock(block.getX(), block.getY(), block.getZ(), block.getWorld().getName(), this.userHandler.getUserId(player), checkGroup);
+    }
+    
+    /**
+     * <p>Checks if player can interact with block in respect to ownership and groups.
+     * Returns <code>true</code> if block is ownerless, is owner or (if <code>checkGroup</code>) is in group with
+     * owner. Returns <code>false</code> if not owner or (if <code>checkGroup</code>) is not in group with owner.</p>
+     * 
+     * <p>The owner of the block at <code>x</code>, <code>y</code>, <code>z</code>, <code>world</code> will be fetched and checked against <code>playerID</code></p>
+     * 
+     * @param x X-coord of Block's location.
+     * @param y Y-coord of Block's location.
+     * @param z Z-coord of Block's location.
+     * @param world Name of world to check.
+     * @param playerID ID of player to check.
+     * @param checkGroup If true then method will check groups on owner and playerUUID
+     * @return boolean true if can interact or false if not. Will return true if no owner on block.
+     */
+    public boolean canInteractWithBlock(int x, int y, int z, String world, int playerID, boolean checkGroup) {
+    	boolean ret = true;
+
+    	int owner = getOwnerID(x, y, z, world);
+    	
+    	// As getOwnerID() returns an int over zero if owner is found simply
+    	// check this by using:
+    	if (owner > 0) {
+    		// Block is owned by a user, check against current user if it is not the same ID.
+    		if (playerID != owner) {
+    			// By this point player can not interact with block as its not owner.
+    			// If checkGroup is true keep on, but set ret=false in case it's false.
+    			ret = false;
+    			
+    			if (checkGroup == true) {
+    				// Fetch group IDs for each player.
+    				int playerGroupID = this.groupHandler.getGroupIDFromUserId(playerID);
+    				int ownerGroupID  = this.groupHandler.getGroupIDFromUserId(owner);
+    				
+    				// Check if player is in group.
+    				if (playerGroupID > 0 && playerGroupID == ownerGroupID) {
+    					// Player is in group with owner, change ret to true.
+    					ret = true;
+    				}
+    			}
+    		}
+    	}
+    	
+    	return ret;
     }
 }
