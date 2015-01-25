@@ -328,7 +328,7 @@ public class MinecraftnoEntityListener implements Listener {
         } else if (type == EntityType.ZOMBIE && !wcfg.zombie) {
             event.setCancelled(true);
         } else if (type == EntityType.WOLF && !wcfg.wolf) {
-            //event.setCancelled(true);
+            event.setCancelled(true);
         } else if (type == EntityType.CAVE_SPIDER && !wcfg.cave_spider) {
             event.setCancelled(true);
         } else if (type == EntityType.ENDERMAN && !wcfg.enderman) {
