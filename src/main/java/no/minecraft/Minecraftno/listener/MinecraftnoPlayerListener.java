@@ -516,6 +516,20 @@ public class MinecraftnoPlayerListener implements Listener {
                     }
                     break;
                 }
+                
+                case LAVA_BUCKET:
+                case WATER_BUCKET: {
+                    
+                    if (block.getType() == Material.RAILS
+                     || block.getType() == Material.POWERED_RAIL
+                     || block.getType() == Material.ACTIVATOR_RAIL
+                     || block.getType() == Material.DETECTOR_RAIL) {
+                        event.setCancelled(true);
+                        return;
+                    }
+                    
+                    break;
+                }                    
 
                 case FENCE: {
                     Block space = block.getRelative(event.getBlockFace());
