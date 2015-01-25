@@ -73,6 +73,13 @@ public class MinecraftnoEntityListener implements Listener {
         ConfigurationServer cfg = this.plugin.getGlobalConfiguration();
         ConfigurationWorld wcfg = cfg.get(world);
 
+        /*
+         * - Player gets first priority.
+         * - Do not just return inside event as we might need to check
+         *   more damage stuff. Only time to use return is when event is
+         *   cancelled.
+         */
+
         if (event.getEntity().getWorld().getSpawnLocation().distance(event.getEntity().getLocation()) < 10) {
             event.setCancelled(true);
             return;
@@ -81,8 +88,9 @@ public class MinecraftnoEntityListener implements Listener {
         if (type == DamageCause.STARVATION) {
             event.setCancelled(true);
         }
-
-        if (defender instanceof Player) {
+        
+        // Player as defender must get first priority!
+        if (defender instanceof Player) {            
             Player player = (Player) defender;
             if (this.userHandler.getAccess(player) > 2) {
                 if (WorkCommand.isInWork(player)) {
@@ -90,70 +98,73 @@ public class MinecraftnoEntityListener implements Listener {
                     return;
                 }
             }
-        }
-
-        if (defender instanceof Player) {
-
+            
+            if (!wcfg.pvpWorld && !wcfg.PVPgroups) {
+                if (world.getEnvironment() != Environment.NETHER) {
+                    if (defender instanceof Player) {
+                        if (type == DamageCause.VOID) {
+                            Location loc = defender.getLocation();
+                            loc.setWorld(Bukkit.getServer().getWorlds().get(0));
+                            loc.setY(320D);
+                            event.setCancelled(true);
+                            defender.teleport(loc);
+                            return;
+                        }
+                        event.setCancelled(true);
+                        return;
+                    }
+                    
+                    if (event instanceof EntityDamageByEntityEvent) {
+                        event.setCancelled(true);
+                        return;
+                    }
+                }          
+            }
         }
 
         if (defender instanceof Entity) {
             Entity entity = defender;
 
-            if (entity.getType() == EntityType.ITEM_FRAME && defender instanceof Player) {
-                Player player = (Player) defender;
-                String ownerofFrame = this.blockInfo.getOwner(entity.getLocation());
-                if (ownerofFrame == null) {
-                    return;
-                }
-
-                int grOwner = this.groupHandler.getGroupIDFromName(ownerofFrame);
-                if (!((ownerofFrame.equalsIgnoreCase(player.getName())) || (grOwner != 0 && grOwner == this.groupHandler.getGroupID(player)))) {
-                    player.sendMessage(ChatColor.RED + ownerofFrame + " eier denne itemframen og er derfor beskyttet.");
-                    event.setCancelled(true);
-                    return;
-                }
+            if (attacker instanceof Player) {
+                Player player = (Player) attacker;
+                if (entity.getType() == EntityType.ITEM_FRAME) {
+                    String ownerofFrame = this.blockInfo.getOwner(entity.getLocation());
+                    if (ownerofFrame != null) {
+                        int grOwner = this.groupHandler.getGroupIDFromName(ownerofFrame);
+                        if (!((ownerofFrame.equalsIgnoreCase(player.getName())) || (grOwner != 0 && grOwner == this.groupHandler.getGroupID(player)))) {
+                            player.sendMessage(ChatColor.RED + ownerofFrame + " eier denne itemframen og er derfor beskyttet.");
+                            event.setCancelled(true);
+                            return;
+                        }
+                    }
+                }    
             }
 
+            // Handle horse damage.
             if (event instanceof EntityDamageByEntityEvent) {
                 EntityDamageByEntityEvent subEvent = (EntityDamageByEntityEvent) event;
                 attacker = subEvent.getDamager();
-                if (!(entity instanceof Horse))
-                	return;
                 
-                Horse horsy = (Horse) entity;
-                
-                if (this.resolveHorseDamage(horsy, type, attacker)) {
-                	event.setCancelled(true);
-                	return;
+                if (attacker.getType() == EntityType.HORSE) {
+                    Horse horsy = (Horse) entity;
+                    
+                    if (this._resolveHorseDamage(horsy, type, attacker)) {
+                        event.setCancelled(true);
+                        return;
+                    }
                 }
             } else {
                 if (entity.getType() == EntityType.HORSE) {
                     Horse horsy = (Horse) entity;
-                    if (this.resolveHorseDamage(horsy, type, attacker)) {
-                    	event.setCancelled(true);
-                    	return;
-                    }
-                }
-            }
-        }
-
-        if ((!wcfg.pvpWorld) && (!wcfg.PVPgroups)) {
-            if (world.getEnvironment() != Environment.NETHER) {
-                if (defender instanceof Player) {
-                    if (type == DamageCause.VOID) {
-                        Location loc = defender.getLocation();
-                        loc.setWorld(Bukkit.getServer().getWorlds().get(0));
-                        loc.setY(320D);
+                    if (this._resolveHorseDamage(horsy, type, attacker)) {
                         event.setCancelled(true);
-                        defender.teleport(loc);
                         return;
                     }
-                    event.setCancelled(true);
-                    return;
                 }
             }
         }
 
+        // PvP world
         if (!wcfg.pvpWorld) {
             if ((!wcfg.Damage) || (!wcfg.PVPDamage)) {
                 if (event instanceof EntityDamageByEntityEvent) {
@@ -193,7 +204,7 @@ public class MinecraftnoEntityListener implements Listener {
      * @param attacker
      * @return true if cancel event, false don't.
      */
-    private boolean resolveHorseDamage(Horse horsy, DamageCause cause, Entity attacker)
+    protected boolean _resolveHorseDamage(Horse horsy, DamageCause cause, Entity attacker)
     {
     	if (!horsy.isTamed() || horsy.getOwner() == null) {
     		return false;
@@ -317,7 +328,7 @@ public class MinecraftnoEntityListener implements Listener {
         } else if (type == EntityType.ZOMBIE && !wcfg.zombie) {
             event.setCancelled(true);
         } else if (type == EntityType.WOLF && !wcfg.wolf) {
-            event.setCancelled(true);
+            //event.setCancelled(true);
         } else if (type == EntityType.CAVE_SPIDER && !wcfg.cave_spider) {
             event.setCancelled(true);
         } else if (type == EntityType.ENDERMAN && !wcfg.enderman) {
