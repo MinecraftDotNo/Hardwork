@@ -356,63 +356,6 @@ public class MinecraftnoEntityListener implements Listener {
         }
     }
 
-    /**
-     * @EventHandler(priority=EventPriority.NORMAL) public void onPaintingBreak(PaintingBreakEvent event) {
-     * World world = event.getPainting().getLocation().getWorld();
-     * ConfigurationServer cfg = this.plugin.getGlobalConfiguration();
-     * ConfigurationWorld wcfg = cfg.get(world);
-     * <p/>
-     * if (event instanceof PaintingBreakByEntityEvent) {
-     * PaintingBreakByEntityEvent evt = (PaintingBreakByEntityEvent) event;
-     * if (evt.getRemover() instanceof Player) {
-     * Player player = (Player) evt.getRemover();
-     * if((wcfg.protectPaintings)) {
-     * String owner = this.blockinfoHandler.getOwner(event.getPainting());
-     * if (owner != null) {
-     * int userGroup = groupHandler.getGroupID(player);
-     * if (player.getName().equals(owner)) {
-     * this.blockinfoHandler.delete(event.getPainting());
-     * }
-     * else if (userGroup != 0 && userGroup == groupHandler.getGroupIDFromName(owner)) {
-     * this.blockinfoHandler.delete(event.getPainting());
-     * }
-     * else {
-     * if (!owner.equalsIgnoreCase(UserHandler.SERVER_USERNAME)
-     * && !owner.equalsIgnoreCase("hardwork")) {
-     * player.sendMessage(ChatColor.RED + owner
-     * + " eier dette  bilde. Om dere samarbeider kan");
-     * player.sendMessage(ChatColor.RED
-     * + "dere lage en gruppe, se /help for mer informasjon.");
-     * player.sendMessage(ChatColor.RED
-     * + "Dersom bilde ikke skulle være her, kontakt en vakt eller stab.");
-     * } else {
-     * player.sendMessage(ChatColor.RED
-     * + "En vakt eller stab har beskyttet dette bilde.");
-     * player.sendMessage(ChatColor.RED
-     * + "Om du mener den er din, eller den skal fjernes, kontakt en vakt eller stab.");
-     * }
-     * event.setCancelled(true);
-     * }
-     * } else {
-     * player.sendMessage(ChatColor.RED + "En feil oppsto i bildefjerningshåndtereren, kontakt stab.");
-     * event.setCancelled(true);
-     * }
-     * }
-     * }
-     * }
-     * <p/>
-     * }
-     * @EventHandler(priority=EventPriority.NORMAL) public void onPaintingPlace(PaintingPlaceEvent event) {
-     * World world = event.getPainting().getLocation().getWorld();
-     * ConfigurationServer cfg = this.plugin.getGlobalConfiguration();
-     * ConfigurationWorld wcfg = cfg.get(world);
-     * <p/>
-     * if(wcfg.protectPaintings) {
-     * this.blockinfoHandler.add(event.getPlayer(), event.getPainting());
-     * }
-     * }*
-     */
-
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onEntityShootBow(EntityShootBowEvent event) {
         if (event.getEntity() instanceof Player) {
