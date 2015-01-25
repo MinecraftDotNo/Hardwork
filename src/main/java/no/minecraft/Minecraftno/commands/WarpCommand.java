@@ -28,6 +28,7 @@ public class WarpCommand extends MinecraftnoCommand {
                     return true;
                 } else {
                     if (wd != null && wd.getWorld() != null) {
+                        this.userHandler.setTeleportBackLocation(player, player.getLocation());
                         if (player.isInsideVehicle() && player.getVehicle() instanceof Horse) {
                             Entity veh = player.getVehicle();
 

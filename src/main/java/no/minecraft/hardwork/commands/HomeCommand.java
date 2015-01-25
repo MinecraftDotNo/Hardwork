@@ -1,8 +1,10 @@
 package no.minecraft.hardwork.commands;
 
+import no.minecraft.Minecraftno.Minecraftno;
 import no.minecraft.hardwork.Hardwork;
 import no.minecraft.hardwork.User;
 import no.minecraft.hardwork.handlers.UserHandler;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -30,6 +32,7 @@ public class HomeCommand implements CommandExecutor {
         Player player = (Player) sender;
 
         UserHandler uh = this.hardwork.getUserHandler();
+        no.minecraft.Minecraftno.handlers.player.UserHandler mcnoUh = Minecraftno.getInstance().getUserHandler();
 
         User user = uh.getUser(player.getUniqueId());
 
@@ -57,6 +60,7 @@ public class HomeCommand implements CommandExecutor {
         }
 
         player.teleport(home);
+        mcnoUh.setTeleportBackLocation(player, player.getLocation());
 
         player.sendMessage(ChatColor.GREEN + "*poof*");
 

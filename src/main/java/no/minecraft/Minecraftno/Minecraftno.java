@@ -34,6 +34,8 @@ import java.util.logging.Logger;
 
 public class Minecraftno extends JavaPlugin {
     private final Hardwork hardwork = new Hardwork(this);
+    
+    protected static Minecraftno instance = null;
 
     // Compatibility with old classes.
     public static Logger log;
@@ -85,6 +87,7 @@ public class Minecraftno extends JavaPlugin {
     private final MinecraftnoHangingListener hangingListener = new MinecraftnoHangingListener(this);
 
     public void onEnable() {
+        instance = this;
         hardwork.onEnable();
 
         // Use the default Bukkit logger.
@@ -613,5 +616,9 @@ public class Minecraftno extends JavaPlugin {
 
     public Hardwork getHardwork() {
         return this.hardwork;
+    }
+
+    public static Minecraftno getInstance() {
+        return instance;
     }
 }
