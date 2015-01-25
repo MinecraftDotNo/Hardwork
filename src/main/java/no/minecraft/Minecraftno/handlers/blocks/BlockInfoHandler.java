@@ -30,7 +30,6 @@ public class BlockInfoHandler {
     private final MySQLHandler sqlHandler;
     private final UserHandler userHandler;
     private final GroupHandler groupHandler;
-    protected int lastCheckedOwnerID = 0;
 
     SimpleDateFormat dateFormat = Util.dateFormat;
 
@@ -204,16 +203,52 @@ public class BlockInfoHandler {
     }
     
     /**
-     * <p>Checks if player can interact with block. See method <code>canInteractWithBlock(int, int, int, String, int, int, boolean)</code> for docs.</p>
+     * <p>Checks if player can interact with block. See method <code>canInteractWithBlock(int, int, int, int, boolean)</code> for docs.</p>
      * 
-     * @see canInteractWithBlock(int, int, int, String, int, boolean)
+     * <p>This function fetches owner ID of block and groupID if checkGroup is true.</p>
+     * 
+     * @see canInteractWithBlock(int, int, int, int, boolean)
      * @param block
      * @param player
+     * @param message A message to send to user if can't interact with block. Send {OWNER_NAME} to send owner's name.
      * @param checkGroup
      * @return
      */
-    public boolean canInteractWithBlock(Block block, Player player, boolean checkGroup) {
-    	return canInteractWithBlock(block.getX(), block.getY(), block.getZ(), block.getWorld().getName(), this.userHandler.getUserId(player), this.groupHandler.getGroupID(player), checkGroup);
+    public boolean canInteractWithBlock(Block block, Player player, String message, boolean checkGroup) {
+        int ownerID = getOwnerId(block);
+        int ownerGroupID = 0;
+        
+        if (checkGroup == true && ownerID > 0) {
+            ownerGroupID = this.groupHandler.getGroupIDFromUserId(ownerID);
+        }
+        
+    	return canInteractWithBlock(ownerID, ownerGroupID, player, message, checkGroup);
+    }
+    
+    /**
+     * <p>Checks if player can interact with a block by checking owner. See method <code>canInteractWithBlock(int, int, int, int, boolean)</code> for docs.</p>
+     * 
+     * This method fetches current player's group and ID.
+     * 
+     * @see canInteractWithBlock(int, int, int, int, boolean)
+     * @param ownerID ID of the owner.
+     * @param player
+     * @param ownerGroupID ID of owner's group. If not checking group just set it to 0.
+     * @param message A message to send to user if can't interact with block. Send {OWNER_NAME} to send owner's name.
+     * @param checkGroup
+     * @return boolean Will return true if interaction is denied.
+     */
+    public boolean canInteractWithBlock(int ownerID, int ownerGroupID, Player player, String message, boolean checkGroup) {
+        int canInteract = canInteractWithBlock(ownerID, this.userHandler.getUserId(player), ownerGroupID, this.groupHandler.getGroupID(player), checkGroup);
+        
+        // Handle message.
+        if (canInteract > 0) {
+            String ownerName = this.userHandler.getNameFromId(canInteract);
+            message = message.replace("{OWNER_NAME}", ownerName);
+            player.sendMessage(message);
+        }
+        
+        return canInteract > 0 ? false : true;        
     }
     
     /**
@@ -221,56 +256,39 @@ public class BlockInfoHandler {
      * Returns <code>true</code> if block is ownerless, is owner or (if <code>checkGroup</code>) is in group with
      * owner. Returns <code>false</code> if not owner or (if <code>checkGroup</code>) is not in group with owner.</p>
      * 
-     * <p>The owner of the block at <code>x</code>, <code>y</code>, <code>z</code>, <code>world</code> will be fetched and checked against <code>playerID</code></p>
+     * <p>If checking in normal events where <code>Player</code> object is available its recommended to use
+     * the method <code>canInteractWithBlock(int, int, Player, String, boolean)</code> as it supports sending a message.
+     * Owner is not fetched in method as events have fetched owner.</p>
      * 
-     * @param x X-coord of Block's location.
-     * @param y Y-coord of Block's location.
-     * @param z Z-coord of Block's location.
-     * @param world Name of world to check.
+     * @param ownerID ID of the owner.
      * @param playerID ID of player to check.
-     * @param playerGroupID ID of player's group.
+     * @param playerGroupID ID of player's group. If not checking group just set it to 0.
+     * @param ownerGroupID ID of owner's group. If not checking group just set it to 0.
      * @param checkGroup If true then method will check groups on owner and playerUUID
-     * @return boolean true if can interact or false if not. Will return true if no owner on block.
+     * @return Integer Returns the ownerID if can't interact (check by canInteract > 0) and -1 if can interact.
      */
-    public boolean canInteractWithBlock(int x, int y, int z, String world, int playerID, int playerGroupID, boolean checkGroup) {
-    	boolean ret = true;
+    public int canInteractWithBlock(int ownerID, int playerID, int ownerGroupID, int playerGroupID, boolean checkGroup) {
+    	int ret = -1;
 
-    	int owner = getOwnerID(x, y, z, world);
-    	
-    	// As getOwnerID() returns an int over zero if owner is found simply
-    	// check this by using:
-    	if (owner > 0) {
-    	    // Set lastCheckedOwnerID to access owner from this function easy.
-    	    this.lastCheckedOwnerID = owner;
-    	    
+    	// Not fetching owner in this function as it might use more queries per event.    	
+    	if (ownerID > 0) {
     		// Block is owned by a user, check against current user if it is not the same ID.
-    		if (playerID != owner) {
+    		if (playerID != ownerID) {
     			// By this point player can not interact with block as its not owner.
     			// If checkGroup is true keep on, but set ret=false in case it's false.
-    			ret = false;
+    			ret = ownerID;
     			
-    			if (checkGroup == true) {
-    				// Fetch group IDs for each player.
-    				int ownerGroupID  = this.groupHandler.getGroupIDFromUserId(owner);
-    				
+    			if (checkGroup == true) {  				
     				// Check if player is in group.
     				if (playerGroupID > 0 && playerGroupID == ownerGroupID) {
-    					// Player is in group with owner, change ret to true.
-    					ret = true;
+    					// Player is in group with owner, change ret to -1.
+    					ret = -1;
     				}
     			}
     		}
     	}
 
     	return ret;
-    }
-    
-    /**
-     * Provides the last checked owner ID in canInteractWithBlock.
-     * @return
-     */
-    public int getLastCheckedOwner() {
-        return this.lastCheckedOwnerID;
     }
     
 }

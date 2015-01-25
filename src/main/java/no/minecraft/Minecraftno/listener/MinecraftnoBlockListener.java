@@ -306,19 +306,22 @@ public class MinecraftnoBlockListener implements Listener {
         }
     }
 
+    @SuppressWarnings({ "deprecation" })
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent event) {
         ConfigurationServer cfg = this.plugin.getGlobalConfiguration();
         Player player = event.getPlayer();
         Block block = event.getBlock();
+        
+        int access = this.userHandler.getAccess(player);
 
-        if (this.userHandler.getAccess(player) == 0) {
+        if (access == 0) {
             player.sendMessage(Minecraftno.notRegistredMessage());
             event.setBuild(false);
             event.setCancelled(true);
             return;
         } else if (cfg.illegalItems.contains(event.getBlockPlaced().getTypeId())) {
-            if (this.userHandler.getAccess(player) < 3) {
+            if (access < 3) {
                 player.getInventory().remove(player.getItemInHand());
                 this.plugin.getLogHandler().log(this.userHandler.getUserId(player), 0, 0, event.getBlockPlaced().getTypeId(), player.getLocation().toString(), MinecraftnoLog.ILLEGAL);
                 event.setBuild(false);
@@ -412,8 +415,8 @@ public class MinecraftnoBlockListener implements Listener {
         Block down = block.getRelative(BlockFace.DOWN);
         Material[] railTypes = { Material.RAILS, Material.ACTIVATOR_RAIL, Material.POWERED_RAIL, Material.DETECTOR_RAIL };
         if (down != null && Arrays.asList(railTypes).contains(down.getType())) {
-            if (this.blockinfoHandler.canInteractWithBlock(down, player, true) == false) {
-                player.sendMessage(ChatColor.RED + this.userHandler.getNameFromId(this.blockinfoHandler.getLastCheckedOwner()) + " eier railen under, så du har ikke lov å plassere en blokk over den.");
+            String message = ChatColor.RED + "{OWNER_NAME} eier railen under, så du har ikke lov å plassere en blokk over den.";
+            if (this.blockinfoHandler.canInteractWithBlock(down, player, message, true) == false) {
                 event.setCancelled(true);
                 return;
             }
