@@ -242,7 +242,7 @@ public class BlockInfoHandler {
         int canInteract = canInteractWithBlock(ownerID, this.userHandler.getUserId(player), ownerGroupID, this.groupHandler.getGroupID(player), checkGroup);
         
         // Handle message.
-        if (canInteract > 0) {
+        if (canInteract > 0 && (message != null && message.trim().length() > 0)) {
             String ownerName = this.userHandler.getNameFromId(canInteract);
             message = message.replace("{OWNER_NAME}", ownerName);
             player.sendMessage(message);
