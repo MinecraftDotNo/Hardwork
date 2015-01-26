@@ -1,8 +1,10 @@
 package no.minecraft.Minecraftno.handlers;
 
 import com.sk89q.worldedit.bukkit.selections.Selection;
+
 import no.minecraft.Minecraftno.Minecraftno;
 import no.minecraft.Minecraftno.handlers.data.SandtakData;
+
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -194,7 +196,8 @@ public class SandtakHandler {
      *
      * @return quantitiy of double chests in inventory, or -1 on failure
      */
-    public int getSandtakInventoryStatus(String playerName, int material) {
+    @SuppressWarnings("deprecation")
+    public int getSandtakInventoryStatus(String playerName, Material material) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -202,7 +205,7 @@ public class SandtakHandler {
             conn = this.plugin.getConnection();
             ps = conn.prepareStatement("SELECT `doublechestQuantity` FROM `sandtak_inventory` WHERE userid" + "= (SELECT `id` FROM Minecraftno.users WHERE name = ?) AND material = ?");
             ps.setString(1, playerName);
-            ps.setInt(2, material);
+            ps.setInt(2, material.getId());
             rs = ps.executeQuery();
             if (rs.next()) {
                 return rs.getInt(1);
@@ -279,11 +282,12 @@ public class SandtakHandler {
      *
      * @param playerName Name of the player
      * @param amountOfDk Amount being removed
-     * @param materialId Id of material
+     * @param material   material
      *
      * @return True on success, false otherwise
      */
-    public boolean removeDksFromPlayerSandtakInventory(String playerName, int amountOfDk, int materialId) {
+    @SuppressWarnings("deprecation")
+    public boolean removeDksFromPlayerSandtakInventory(String playerName, int amountOfDk, Material material) {
         Connection conn = null;
         PreparedStatement ps = null;
         try {
@@ -291,7 +295,7 @@ public class SandtakHandler {
             ps = conn.prepareStatement("UPDATE `sandtak_inventory` SET `doublechestQuantity` = (`doublechestQuantity` - ?)" + "WHERE `userid` = (SELECT `id` FROM Minecraftno.users WHERE `name` = ?) AND `material` = ?");
             ps.setInt(1, amountOfDk);
             ps.setString(2, playerName);
-            ps.setInt(3, materialId);
+            ps.setInt(3, material.getId());
             ps.executeUpdate();
             return true;
         } catch (SQLException e) {
@@ -371,9 +375,9 @@ public class SandtakHandler {
      *
      * @param sandtakName Name of sandtak
      * @param amountOfDk  Amount of double chests to fill the sandtak with
-     * @param materialId  Material id to fill the sandtak with
+     * @param material    Material id to fill the sandtak with
      */
-    public void fillSandtak(String sandtakName, int amountOfDk, int materialId) {
+    public void fillSandtak(String sandtakName, int amountOfDk, Material material) {
         Location pos1 = this.sandtak.get(sandtakName).getPos1();
         Location pos2 = this.sandtak.get(sandtakName).getPos2();
         String worldName = this.sandtak.get(sandtakName).getWorldName();
@@ -410,7 +414,7 @@ public class SandtakHandler {
                     if ((counter / 3456) == amountOfDk) {
                         return;
                     }
-                    this.plugin.getServer().getWorld(worldName).getBlockAt(x, y, z).setTypeId(materialId);
+                    this.plugin.getServer().getWorld(worldName).getBlockAt(x, y, z).setType(material);
                     counter++;
                 }
             }

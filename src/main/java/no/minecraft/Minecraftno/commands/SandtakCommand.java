@@ -1,13 +1,16 @@
 package no.minecraft.Minecraftno.commands;
 
 import com.sk89q.worldedit.bukkit.selections.Selection;
+
 import no.minecraft.Minecraftno.Minecraftno;
 import no.minecraft.Minecraftno.handlers.SandtakHandler;
 import no.minecraft.Minecraftno.handlers.WEBridge;
 import no.minecraft.Minecraftno.handlers.blocks.BlockInfoHandler;
 import no.minecraft.Minecraftno.handlers.enums.MinecraftnoLog;
 import no.minecraft.Minecraftno.handlers.player.UserHandler;
+
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
@@ -153,8 +156,8 @@ public class SandtakCommand extends MinecraftnoCommand {
      * @param player Player issuing the command
      */
     private void sandtakInventoryStatus(Player player) {
-        int statusStone = this.sandtakHandler.getSandtakInventoryStatus(player.getName(), 1);
-        int statusCobbleStone = this.sandtakHandler.getSandtakInventoryStatus(player.getName(), 4);
+        int statusStone = this.sandtakHandler.getSandtakInventoryStatus(player.getName(), Material.STONE);
+        int statusCobbleStone = this.sandtakHandler.getSandtakInventoryStatus(player.getName(), Material.COBBLESTONE);
         if (statusStone != -1 && statusCobbleStone != -1) {
             player.sendMessage(getDefaultChatColor() + "Du har " + getVarChatColor() + statusCobbleStone + getDefaultChatColor() + " dobbelkister klar til bruk for sandtak med sand.");
             player.sendMessage(getDefaultChatColor() + "Du har " + getVarChatColor() + statusStone + getDefaultChatColor() + " dobbelkister klar til bruk for sandtak med snø.");
@@ -185,8 +188,8 @@ public class SandtakCommand extends MinecraftnoCommand {
             if (this.sandtakHandler.isSandtakEmpty(realSandtakName)) {
                 if (amountOfDk >= 0) {
                     int amount = 0;
-                    int materialId = 4; // cobblestone, used for sand
-                    int sandtakMaterialId = 12; // sand by default
+                    Material materialId = Material.COBBLESTONE; // cobblestone, used for sand
+                    Material sandtakMaterialId = Material.SAND; // sand by default
                     if (amountOfDk == 0) {
                         amount = this.sandtakHandler.getSandtakMap().get(realSandtakName).getSize();
                     } else {
@@ -194,8 +197,8 @@ public class SandtakCommand extends MinecraftnoCommand {
                     }
 
                     if (type.equals("snow")) {
-                        materialId = 1; // stone, used for snow
-                        sandtakMaterialId = 80; // snow
+                        materialId = Material.STONE; // stone, used for snow
+                        sandtakMaterialId = Material.SNOW_BLOCK; // snow
                     }
                     int playerInventoryAmount = this.sandtakHandler.getSandtakInventoryStatus(player.getName(), materialId);
 
