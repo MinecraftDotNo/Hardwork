@@ -26,7 +26,10 @@ public class HultbergInventory implements Serializable {
 
     public void setContents(Inventory inv) {
         for (HultbergItemStack i : contents) {
-            inv.setItem(i.getSlot(), i.getStack());
+            ItemStack stack = i.getStack();
+            if (stack != null) {
+                inv.setItem(i.getSlot(), stack);
+            }
         }
     }
 }

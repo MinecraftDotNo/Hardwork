@@ -1,16 +1,17 @@
 package no.minecraft.Minecraftno.commands;
 
+import java.io.File;
+import java.util.logging.Level;
+
 import no.minecraft.Minecraftno.Minecraftno;
 import no.minecraft.Minecraftno.handlers.SavedObject;
 import no.minecraft.Minecraftno.handlers.player.HultbergInventory;
+
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-
-import java.io.File;
-import java.util.logging.Level;
 
 public class WorkCommand extends MinecraftnoCommand {
 
@@ -68,15 +69,13 @@ public class WorkCommand extends MinecraftnoCommand {
             plugin.getDataFolder().mkdir();
         }
 
-        PlayerInventory pinv = p.getInventory();
+        PlayerInventory pinv = p.getInventory();        
         HultbergInventory toSave = new HultbergInventory(pinv);
 
         File storeAt = new File(this.plugin.getDataFolder() + "/workInventories/");
         if (!storeAt.exists()) {
             storeAt.mkdirs();
         }
-        
-        
 
         try {
             SavedObject.save(toSave, getWorkFile(p));
@@ -93,7 +92,7 @@ public class WorkCommand extends MinecraftnoCommand {
             plugin.getDataFolder().mkdir();
         }
 
-        PlayerInventory pinv = p.getInventory();
+        PlayerInventory pinv = p.getInventory();  
         HultbergInventory contents = null;
 
         File get = getWorkFile(p);
@@ -125,6 +124,6 @@ public class WorkCommand extends MinecraftnoCommand {
     
     public static File getWorkFile(Player p)
     {
-    	return new File(dataFolder + "/workInventories/", p.getName() + ".dat");
+    	return new File(dataFolder + "/workInventories/", p.getUniqueId().toString() + ".dat");
     }
 }

@@ -1,13 +1,10 @@
 package no.minecraft.Minecraftno.handlers.player;
 
-import org.bukkit.configuration.serialization.ConfigurationSerialization;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.material.MaterialData;
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.bukkit.inventory.ItemStack;
 
 public class HultbergItemStack implements Serializable {
 
@@ -15,33 +12,20 @@ public class HultbergItemStack implements Serializable {
      *
      */
     private static final long serialVersionUID = 1350134671643111396L;
-    private int slot;
-    private int itemId;
-    private byte data;
-    private short durability;
-    private int amount;
-    private Map<String, Object> meta;
+    private int slot;    
+    private Map<String, Object> serialized;
 
     public HultbergItemStack(ItemStack stack, int slot) {
-        this.slot = slot;
-        this.itemId = stack.getTypeId();
-        this.data = stack.getData().getData();
-        this.durability = stack.getDurability();
-        this.amount = stack.getAmount();
-        if (stack.getItemMeta() != null) {
-            meta = this.createMap((stack.getItemMeta()).serialize());
-        }
+        this.slot = slot;        
+        this.serialized = stack.serialize();
     }
 
     public ItemStack getStack() {
-        ItemStack r = new ItemStack(this.itemId);
-        r.setDurability(this.durability);
-        r.setData(new MaterialData(this.data));
-        r.setAmount(this.amount);
-        if (this.meta != null && !this.meta.isEmpty()) {
-            r.setItemMeta((ItemMeta) ConfigurationSerialization.deserializeObject(this.meta, ConfigurationSerialization.getClassByAlias("ItemMeta")));
+        if (this.serialized != null && !this.serialized.isEmpty()) {
+            return ItemStack.deserialize(serialized);
         }
-        return r;
+        
+        return null;
     }
 
     public int getSlot() {
