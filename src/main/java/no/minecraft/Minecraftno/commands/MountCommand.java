@@ -22,6 +22,11 @@ public class MountCommand extends MinecraftnoCommand {
             Player target = this.plugin.playerMatch(args[0]);
             if (target != null) {
                 
+                if (target.getName().equalsIgnoreCase(player.getName())) {
+                    player.sendMessage(getErrorChatColor() + "Du kan ikke mounte seg selv.");
+                    return true;
+                }
+                
                 // Check if player and target is in the same world.
                 // Related: http://redmine.minecraft.no/issues/112
                 if (player.getWorld().getName().equalsIgnoreCase(target.getWorld().getName()) == false) {
