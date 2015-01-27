@@ -17,6 +17,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 
+/**
+ * TODO: Tune up some day.
+ */
 public class WarningHandler {
 
     private final Minecraftno plugin;
@@ -30,6 +33,7 @@ public class WarningHandler {
     }
 
     public boolean addWarning(String playerName, String warnerName, String reason, Location loc) throws SQLException {
+        // TODO: Use better way of handling queries.
         int userId = this.userHandler.getUserId(playerName);
         int warnerId = this.userHandler.getUserId(warnerName);
         if (userId != -1) {
@@ -53,6 +57,7 @@ public class WarningHandler {
     }
 
     public boolean addWarning(int userId, int warnerId, String reason, Location loc) throws SQLException {
+        // TODO: Use better way of handling queries.
         Connection conn = null;
         PreparedStatement ps = null;
         try {
@@ -85,6 +90,7 @@ public class WarningHandler {
     }
 
     public int countWarnings(String userName) {
+        // TODO: Use better way of handling queries.
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -122,6 +128,7 @@ public class WarningHandler {
     }
 
     public boolean delWarning(int id, String userName) {
+        // TODO: Use better way of handling queries.
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -135,7 +142,10 @@ public class WarningHandler {
                 if (this.userHandler.getUserId(userName) == rs.getInt(1)) {
                     ps = conn.prepareStatement("DELETE FROM `warnings` WHERE `id` = ?");
                     ps.setInt(1, id);
-                    if (ps.execute()) {
+                    
+                    // Execute on a update query returns false for some reason.
+                    // Instead use executeUpdate as it should return the amount of rows affected by our delete query.
+                    if (ps.executeUpdate() > 0) {
                         istrue = true;
                     }
                 }
