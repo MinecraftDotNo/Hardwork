@@ -54,7 +54,7 @@ public class BlockHandler implements Handler, DataConsumer {
             this.querySetBlockOwner.setInt(5, uid);
 
             if (this.querySetBlockOwner.executeUpdate() != 1)
-                throw new SQLException("Unexpected number of affected rows!");
+                throw new SQLException("Unexpected number of affected rows! Debug data: (World: " + world + ", X:" + x + ", Y:" + y + ", Z:" + z + ", UID:" + uid + ")");
         } catch (SQLException exception) {
             this.hardwork.getPlugin().getLogger().warning("SQLException while setting block owner!");
             exception.printStackTrace();
