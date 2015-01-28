@@ -59,8 +59,8 @@ public class HomeCommand implements CommandExecutor {
             return true;
         }
 
-        player.teleport(home);
         mcnoUh.setTeleportBackLocation(player, player.getLocation());
+        player.teleport(home);
 
         player.sendMessage(ChatColor.GREEN + "*poof*");
 
