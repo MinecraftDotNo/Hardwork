@@ -12,6 +12,7 @@ import no.minecraft.hardwork.handlers.BlockHandler;
 import no.minecraft.hardwork.handlers.UserHandler;
 import no.minecraft.hardwork.listeners.BlockListener;
 import no.minecraft.hardwork.listeners.PlayerListener;
+
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -46,6 +47,7 @@ public class Hardwork implements DataConsumer {
         this.plugin.getCommand("home").setExecutor(new HomeCommand(this));
         this.plugin.getCommand("sethome").setExecutor(new SetHomeCommand(this));
         this.plugin.getCommand("who").setExecutor(new WhoCommand(this));
+        //this.plugin.getCommand("work").setExecutor(new WorkCommand(this));
     }
 
     public void onDisable() {

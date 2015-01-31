@@ -2,15 +2,22 @@ package no.minecraft.hardwork.handlers;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
+import no.minecraft.Minecraftno.Minecraftno;
+import no.minecraft.Minecraftno.handlers.SavedObject;
 import no.minecraft.hardwork.Hardwork;
+import no.minecraft.hardwork.HardworkSavedInventory;
 import no.minecraft.hardwork.User;
 import no.minecraft.hardwork.database.DataConsumer;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
@@ -19,6 +26,7 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.Date;
 import java.util.UUID;
+import java.util.logging.Level;
 
 public class UserHandler implements Handler, DataConsumer {
     private Hardwork hardwork;
@@ -40,6 +48,8 @@ public class UserHandler implements Handler, DataConsumer {
     private File homesFile;
     private YamlConfiguration homes;
 
+    private File workFolder;
+    
     public UserHandler(Hardwork hardwork) {
         this.hardwork = hardwork;
     }
@@ -47,8 +57,10 @@ public class UserHandler implements Handler, DataConsumer {
     @Override
     public void onEnable() {
         this.homesFile = new File(this.hardwork.getPlugin().getDataFolder(), "homes.yml");
+        this.workFolder = new File(this.hardwork.getPlugin().getDataFolder() + "/workInventories/");
 
         this.loadHomes();
+        this.verifyWorkFolder();
 
         Scoreboard scoreboard = this.hardwork.getPlugin().getServer().getScoreboardManager().getMainScoreboard();
 
@@ -484,6 +496,10 @@ public class UserHandler implements Handler, DataConsumer {
             team.addPlayer(player);
         }
     }
+    
+    /*--------------------------------------------------------------*/
+    /* Home methods                                                 */
+    /*--------------------------------------------------------------*/
 
     public void loadHomes() {
         this.homes = YamlConfiguration.loadConfiguration(this.homesFile);
@@ -528,4 +544,119 @@ public class UserHandler implements Handler, DataConsumer {
 
         this.saveHomes();
     }
+    
+    /*--------------------------------------------------------------*/
+    /* Work methods                                                 */
+    /*--------------------------------------------------------------*/
+    
+    /**
+     * Validates that workFolder exists.
+     */
+    private void verifyWorkFolder() {
+        if (this.workFolder.exists() == false)
+            this.workFolder.mkdirs();
+    }
+    
+    /**
+     * Indicates if Player is in work. Based on if work inventory file exists.
+     * 
+     * @param UUIDstring the player's UUID in string. Player.getUniqueId().toString()
+     * @return boolean
+     */
+    public boolean isInWork(String UUIDstring) {
+        return getWorkFile(UUIDstring).exists();
+    }
+    
+    /**
+     * Provides a File instance for a players work file.
+     * 
+     * @param UUIDstring the player's UUID in string. Player.getUniqueId().toString()
+     * @return File
+     */
+    public File getWorkFile(String UUIDstring) {
+        return new File(this.workFolder, UUIDstring + "_v2.dat");
+    }
+    
+    /**
+     * Saves player's inventory to disk and give work items.
+     * 
+     * @param player
+     * @return false on failure.
+     */
+    public boolean saveInventoryForWork(Player player) {
+        String uuid = player.getUniqueId().toString();
+        
+        if (isInWork(uuid) == true)
+            return false;
+        
+        PlayerInventory pinv = player.getInventory();
+        
+        try {
+            // TODO: Generate a "report" of what that was saved in case something fails when loading inventory later.
+            SavedObject.save(new HardworkSavedInventory(pinv), getWorkFile(uuid));
+        } catch (Exception ex) {
+            Minecraftno.log.log(Level.SEVERE, "[Hardwork] Kunne ikke lagre inventory.", ex); // TODO: Log with Hardwork.
+            return false; // Stop method here.
+        }
+        
+        // Seems that saving of inventory went fine, time to give user his/her items.
+        pinv.clear();
+        
+        User user = getUser(player.getUniqueId());
+        
+        pinv.setItem(0, new ItemStack(Material.WATCH, 1));
+        pinv.setItem(7, new ItemStack(Material.SPONGE, 1));
+        
+        if (user.getAccessLevel() > 2) {
+            pinv.setItem(1, new ItemStack(Material.COMPASS, 1));
+            pinv.setItem(2, new ItemStack(Material.STICK, 1));
+            pinv.setItem(3, new ItemStack(Material.BOOK, 1));
+            pinv.setItem(4, new ItemStack(Material.WOOD_AXE, 1));
+            pinv.setItem(5, new ItemStack(Material.SLIME_BALL, 1));
+            pinv.setItem(6, new ItemStack(Material.PAPER, 1));
+            pinv.setItem(8, new ItemStack(Material.BEDROCK, -1));
+            pinv.setItem(9, new ItemStack(Material.WATER, -1));
+            pinv.setItem(10, new ItemStack(Material.LAVA, -1));
+            pinv.setItem(11, new ItemStack(Material.FIRE, -1));
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Loads saved inventory and give's player back it's items.
+     * 
+     * @param player
+     * @return false on failure.
+     */
+    public boolean setSavedInventoryWork(Player player) {
+        String uuid = player.getUniqueId().toString();
+        
+        if (isInWork(uuid) == false)
+            return false;
+        
+        HardworkSavedInventory savedInventory = null;
+        
+        // Try loading inventory from disk.
+        try {
+            savedInventory = (HardworkSavedInventory) SavedObject.load(getWorkFile(uuid));
+        } catch (Exception ex) {
+            Minecraftno.log.log(Level.SEVERE, "[Hardwork] Kunne ikke hente inventory.", ex); // TODO: Log with Hardwork.
+            return false;
+        }
+        
+        // Just in case
+        if (savedInventory == null) {
+            Minecraftno.log.log(Level.SEVERE, "[Hardwork] Lagret inventory var null."); // TODO: Log with Hardwork.
+            return false;
+        }
+        
+        // Unpack saved inventory.
+        player.getInventory().clear();
+        
+        savedInventory.unpack(player.getInventory());
+        
+        return true;
+    }
+    
 }
