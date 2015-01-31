@@ -4,7 +4,10 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.material.MaterialData;
 
 public class HultbergItemStack implements Serializable {
 
@@ -12,20 +15,42 @@ public class HultbergItemStack implements Serializable {
      *
      */
     private static final long serialVersionUID = 1350134671643111396L;
+    
+    /* Slot is used in legacy and new way */
     private int slot;    
+    
+    /* New serialize map */
     private Map<String, Object> serialized;
+    
+    /* Legacy */
+    private int itemId;
+    private byte data;
+    private short durability;
+    private int amount;
+    private Map<String, Object> meta;
 
     public HultbergItemStack(ItemStack stack, int slot) {
         this.slot = slot;        
         this.serialized = stack.serialize();
+        
+        /* Not serialising with legacy methods */
     }
 
+    @SuppressWarnings("deprecation")
     public ItemStack getStack() {
         if (this.serialized != null && !this.serialized.isEmpty()) {
             return ItemStack.deserialize(serialized);
+        } else {
+            // Support legacy
+            ItemStack r = new ItemStack(this.itemId);
+            r.setDurability(this.durability);
+            r.setData(new MaterialData(this.data));
+            r.setAmount(this.amount);
+            if (this.meta != null && !this.meta.isEmpty()) {
+                r.setItemMeta((ItemMeta) ConfigurationSerialization.deserializeObject(this.meta, ConfigurationSerialization.getClassByAlias("ItemMeta")));
+            }
+            return r;
         }
-        
-        return null;
     }
 
     public int getSlot() {
