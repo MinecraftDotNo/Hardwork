@@ -10,6 +10,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 /**
+ * TODO: To preserve old WorkInventories rename old work to WorkLegazyCommand when taking this
+ *       command into use.
+ *       
  * @author Edvin
  */
 public class WorkCommand implements CommandExecutor  {

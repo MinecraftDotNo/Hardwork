@@ -656,6 +656,9 @@ public class UserHandler implements Handler, DataConsumer {
         
         savedInventory.unpack(player.getInventory());
         
+        // Delete old file.
+        getWorkFile(uuid).delete();
+        
         return true;
     }
     
