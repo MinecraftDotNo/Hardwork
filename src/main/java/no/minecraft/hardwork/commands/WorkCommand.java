@@ -34,11 +34,10 @@ public class WorkCommand implements CommandExecutor  {
             return false;
 
         Player player = (Player) sender;
-        String uuid = player.getUniqueId().toString();
 
         UserHandler uh = this.hardwork.getUserHandler();
         
-        if (uh.isInWork(uuid) == false) {
+        if (uh.isInWork(player) == false) {
             // Set user in WorkMode.
             if (uh.saveInventoryForWork(player) == false) {
                 player.sendMessage(ChatColor.RED + "En feil skjedde under lagring av din inventory, kontakt en utvikler!");
