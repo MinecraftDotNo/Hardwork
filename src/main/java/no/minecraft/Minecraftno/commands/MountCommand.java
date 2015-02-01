@@ -23,7 +23,7 @@ public class MountCommand extends MinecraftnoCommand {
             if (target != null) {
                 
                 if (target.getName().equalsIgnoreCase(player.getName())) {
-                    player.sendMessage(getErrorChatColor() + "Du kan ikke mounte seg selv.");
+                    player.sendMessage(getErrorChatColor() + "Du kan ikke mounte deg selv.");
                     return true;
                 }
                 
