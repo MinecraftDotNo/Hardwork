@@ -49,9 +49,9 @@
 
     <repositories>
         <repository>
-            <id>bukkit-repo</id>
-            <url>http://repo.bukkit.org/content/groups/public</url>
-        </repository>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
+		</repository>
 
         <repository>
             <id>sk89q-repo</id>
@@ -63,11 +63,19 @@
     </repositories>
 
     <dependencies>
-        <dependency>
+    	<!--Spigot-API-->
+		<dependency>
+          	<groupId>org.spigotmc</groupId>
+          	<artifactId>spigot-api</artifactId>
+          	<version>1.8-R0.1-SNAPSHOT</version>
+		</dependency>
+		
+		<!--Bukkit API-->
+		<dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
-            <version>1.7.10-R0.1-SNAPSHOT</version>
-        </dependency>
+            <version>1.8-R0.1-SNAPSHOT</version>
+		</dependency>
 
         <dependency>
             <groupId>com.sk89q</groupId>
