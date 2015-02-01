@@ -78,7 +78,7 @@ public class WorkCommand extends MinecraftnoCommand {
         }
 
         try {
-            SavedObject.save(toSave, getWorkFile(p));
+            SavedObject.save(toSave, getWorkFileNew(p));
             return true;
         } catch (Exception e) {
             p.sendMessage(this.getErrorChatColor() + "Kunne ikke lagre inventorien, kontakt en utvikler/stab.");
@@ -95,9 +95,12 @@ public class WorkCommand extends MinecraftnoCommand {
         PlayerInventory pinv = p.getInventory();  
         HultbergInventory contents = null;
 
-        File get = getWorkFile(p);
+        File get = getWorkFileNew(p);
         if (!get.exists()) {
-            return false;
+            get = getWorkFileLegacy(p);
+            
+            if (get.exists() == false)
+                return false;
         }
 
         try {
@@ -117,13 +120,23 @@ public class WorkCommand extends MinecraftnoCommand {
     }
 
     public static boolean isInWork(Player p) {
-        File f = getWorkFile(p);
+        File f = getWorkFileNew(p);
+        
+        if (f.exists() == false) {
+            File f2 = getWorkFileLegacy(p);
+            return f2.exists();
+        }
 
-        return f.exists();
+        return true;
     }
     
-    public static File getWorkFile(Player p)
+    public static File getWorkFileLegacy(Player p)
     {
-    	return new File(dataFolder + "/workInventories/", p.getUniqueId().toString() + ".dat");
+    	return new File(dataFolder + "/workInventories/", p.getName() + ".dat");
+    }
+    
+    public static File getWorkFileNew(Player p)
+    {
+        return new File(dataFolder + "/workInventories/", p.getUniqueId().toString() + ".dat");
     }
 }
