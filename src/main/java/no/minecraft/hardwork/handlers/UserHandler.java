@@ -644,7 +644,11 @@ public class UserHandler implements Handler, DataConsumer {
         
         // "remove" inventory from work file.
         workInventories.set("inventory." + uuid, null);
-        workInventories.save(workConfigFile);
+        try {
+            workInventories.save(workConfigFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         
         return true;
     }
