@@ -15,7 +15,7 @@ import org.bukkit.entity.Player;
  *       
  * @author Edvin
  */
-public class WorkCommand implements CommandExecutor  {
+public class WorkCommand implements CommandExecutor {
     
     private final Hardwork hardwork;
 

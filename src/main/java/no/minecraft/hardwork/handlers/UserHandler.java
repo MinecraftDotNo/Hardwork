@@ -19,6 +19,7 @@ import no.minecraft.hardwork.Hardwork;
 import no.minecraft.hardwork.User;
 import no.minecraft.hardwork.database.DataConsumer;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -53,6 +54,9 @@ public class UserHandler implements Handler, DataConsumer {
 
     private File workConfigFile;
     private YamlConfiguration workInventories;
+
+    private File backConfigFile;
+    private YamlConfiguration backLocations;
     
     public UserHandler(Hardwork hardwork) {
         this.hardwork = hardwork;
@@ -62,9 +66,11 @@ public class UserHandler implements Handler, DataConsumer {
     public void onEnable() {
         this.homesFile = new File(this.hardwork.getPlugin().getDataFolder(), "homes.yml");
         this.workConfigFile = new File(this.hardwork.getPlugin().getDataFolder(), "workInvs.yml");
+        this.workConfigFile = new File(this.hardwork.getPlugin().getDataFolder(), "backLocations.yml");
 
         this.loadHomes();
         this.loadWorks();
+        this.loadBackLocations();
 
         Scoreboard scoreboard = this.hardwork.getPlugin().getServer().getScoreboardManager().getMainScoreboard();
 
@@ -651,6 +657,76 @@ public class UserHandler implements Handler, DataConsumer {
         }
         
         return true;
+    }
+    
+    /*--------------------------------------------------------------*/
+    /* Back-teleport methods                                        */
+    /*--------------------------------------------------------------*/
+
+    public void loadBackLocations() {
+        this.backLocations = YamlConfiguration.loadConfiguration(this.backConfigFile);
+    }
+    
+    public void saveBackLocations() {
+        try {
+            this.backLocations.save(this.backConfigFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Set new back location.
+     * 
+     * @param user
+     * @param loc
+     */
+    public void setBackLocation(User user, Location loc) {
+        String key = Integer.toString(user.getId());
+        this.backLocations.set(key + ".x", loc.getBlockX());
+        this.backLocations.set(key + ".y", loc.getBlockY());
+        this.backLocations.set(key + ".z", loc.getBlockZ());
+        this.backLocations.set(key + ".pitch", loc.getPitch());
+        this.backLocations.set(key + ".yaw", loc.getYaw());
+        this.backLocations.set(key + ".world", loc.getWorld().getName());
+        
+        this.saveBackLocations();
+    }
+    
+    /**
+     * Provides latest Location saved. 
+     * 
+     * @param user
+     * @return
+     */
+    public Location getBackLocation(User user) {
+        String key = Integer.toString(user.getId());
+        
+        if (this.backLocations.contains(key) == false)
+            return null;
+
+        int x = 0;
+        int y = 0;
+        int z = 0;
+        float pitch = 0;
+        float yaw = 0;
+        World world = this.hardwork.getPlugin().getServer().getWorld("world");
+        
+        try {
+            x = this.backLocations.getInt(key + ".x");
+            y = this.backLocations.getInt(key + ".y");
+            z = this.backLocations.getInt(key + ".z");
+            pitch = Float.parseFloat(this.backLocations.getString(key + ".pitch"));
+            yaw = Float.parseFloat(this.backLocations.getString(key + ".yaw"));
+            world = this.hardwork.getPlugin().getServer().getWorld(this.backLocations.getString(key + ".world"));
+        } catch (NumberFormatException ex) {
+            return null;
+        }
+        
+        if (world == null)
+            return null;        
+        
+        return new Location(world, x, y, z, yaw, pitch);
     }
     
 }
