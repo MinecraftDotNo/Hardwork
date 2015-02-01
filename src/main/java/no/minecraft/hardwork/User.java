@@ -7,6 +7,9 @@ public class User {
     private final UUID uuid;
     private final String name;
     private final int accessLevel;
+    
+    /* Non-final */
+    private boolean working;
 
     public User(int id, UUID uuid, String name, int accessLevel) {
         this.id = id;
@@ -29,5 +32,17 @@ public class User {
 
     public int getAccessLevel() {
         return this.accessLevel;
+    }
+
+    /**
+     * Indicates if User is currently in /work
+     * @return
+     */
+    public boolean isWorking() {
+        return working;
+    }
+
+    public void setWorking(boolean working) {
+        this.working = working;
     }
 }

@@ -1,11 +1,21 @@
 package no.minecraft.hardwork.handlers;
 
+import java.io.File;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import java.util.logging.Level;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import no.minecraft.Minecraftno.Minecraftno;
-import no.minecraft.Minecraftno.handlers.SavedObject;
 import no.minecraft.hardwork.Hardwork;
-import no.minecraft.hardwork.HardworkSavedInventory;
 import no.minecraft.hardwork.User;
 import no.minecraft.hardwork.database.DataConsumer;
 
@@ -20,13 +30,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
-
-import java.io.File;
-import java.io.IOException;
-import java.sql.*;
-import java.util.Date;
-import java.util.UUID;
-import java.util.logging.Level;
 
 public class UserHandler implements Handler, DataConsumer {
     private Hardwork hardwork;
@@ -48,7 +51,8 @@ public class UserHandler implements Handler, DataConsumer {
     private File homesFile;
     private YamlConfiguration homes;
 
-    private File workFolder;
+    private File workConfigFile;
+    private YamlConfiguration workInventories;
     
     public UserHandler(Hardwork hardwork) {
         this.hardwork = hardwork;
@@ -57,10 +61,10 @@ public class UserHandler implements Handler, DataConsumer {
     @Override
     public void onEnable() {
         this.homesFile = new File(this.hardwork.getPlugin().getDataFolder(), "homes.yml");
-        this.workFolder = new File(this.hardwork.getPlugin().getDataFolder() + "/workInventories/");
+        this.workConfigFile = new File(this.hardwork.getPlugin().getDataFolder(), "workInvs.yml");
 
         this.loadHomes();
-        this.verifyWorkFolder();
+        this.loadWorks();
 
         Scoreboard scoreboard = this.hardwork.getPlugin().getServer().getScoreboardManager().getMainScoreboard();
 
@@ -548,33 +552,19 @@ public class UserHandler implements Handler, DataConsumer {
     /*--------------------------------------------------------------*/
     /* Work methods                                                 */
     /*--------------------------------------------------------------*/
-    
-    /**
-     * Validates that workFolder exists.
-     */
-    private void verifyWorkFolder() {
-        if (this.workFolder.exists() == false)
-            this.workFolder.mkdirs();
+
+    public void loadWorks() {
+        this.workInventories = YamlConfiguration.loadConfiguration(workConfigFile);
     }
     
     /**
-     * Indicates if Player is in work. Based on if work inventory file exists.
+     * Indicates if Player is in work. Based on User.isWorking()
      * 
-     * @param UUIDstring the player's UUID in string. Player.getUniqueId().toString()
+     * @param player
      * @return boolean
      */
-    public boolean isInWork(String UUIDstring) {
-        return getWorkFile(UUIDstring).exists();
-    }
-    
-    /**
-     * Provides a File instance for a players work file.
-     * 
-     * @param UUIDstring the player's UUID in string. Player.getUniqueId().toString()
-     * @return File
-     */
-    public File getWorkFile(String UUIDstring) {
-        return new File(this.workFolder, UUIDstring + "_v2.dat");
+    public boolean isInWork(Player player) {
+        return getUser(player.getUniqueId()).isWorking();
     }
     
     /**
@@ -586,14 +576,14 @@ public class UserHandler implements Handler, DataConsumer {
     public boolean saveInventoryForWork(Player player) {
         String uuid = player.getUniqueId().toString();
         
-        if (isInWork(uuid) == true)
+        if (isInWork(player) == true)
             return false;
         
         PlayerInventory pinv = player.getInventory();
         
         try {
-            // TODO: Generate a "report" of what that was saved in case something fails when loading inventory later.
-            SavedObject.save(new HardworkSavedInventory(pinv), getWorkFile(uuid));
+            workInventories.set("inventory." + uuid, player.getInventory().getContents());
+            workInventories.save(workConfigFile);
         } catch (Exception ex) {
             Minecraftno.log.log(Level.SEVERE, "[Hardwork] Kunne ikke lagre inventory.", ex); // TODO: Log with Hardwork.
             return false; // Stop method here.
@@ -629,35 +619,32 @@ public class UserHandler implements Handler, DataConsumer {
      * @param player
      * @return false on failure.
      */
+    @SuppressWarnings("unchecked")
     public boolean setSavedInventoryWork(Player player) {
         String uuid = player.getUniqueId().toString();
         
-        if (isInWork(uuid) == false)
+        if (isInWork(player) == false)
             return false;
         
-        HardworkSavedInventory savedInventory = null;
+        ItemStack[] content = null;
         
         // Try loading inventory from disk.
         try {
-            savedInventory = (HardworkSavedInventory) SavedObject.load(getWorkFile(uuid));
+            List<ItemStack> list = (List<ItemStack>) workInventories.get("inventory." + uuid);
+            content = list.toArray(new ItemStack[0]);
         } catch (Exception ex) {
             Minecraftno.log.log(Level.SEVERE, "[Hardwork] Kunne ikke hente inventory.", ex); // TODO: Log with Hardwork.
             return false;
         }
         
-        // Just in case
-        if (savedInventory == null) {
-            Minecraftno.log.log(Level.SEVERE, "[Hardwork] Lagret inventory var null."); // TODO: Log with Hardwork.
-            return false;
+        if (content != null) {
+            player.getInventory().clear();
+            player.getInventory().setContents(content);
         }
         
-        // Unpack saved inventory.
-        player.getInventory().clear();
-        
-        savedInventory.unpack(player.getInventory());
-        
-        // Delete old file.
-        getWorkFile(uuid).delete();
+        // "remove" inventory from work file.
+        workInventories.set("inventory." + uuid, null);
+        workInventories.save(workConfigFile);
         
         return true;
     }
