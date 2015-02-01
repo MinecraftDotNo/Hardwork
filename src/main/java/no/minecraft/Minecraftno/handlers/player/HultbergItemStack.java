@@ -9,6 +9,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
 
+/**
+ * @deprecated Using Yaml configs for saving inventories, see no.minecraft.Minecraftno.commands.WorkCommand.java
+ * @author Edvin
+ *
+ */
 public class HultbergItemStack implements Serializable {
 
     /**
@@ -31,15 +36,17 @@ public class HultbergItemStack implements Serializable {
 
     public HultbergItemStack(ItemStack stack, int slot) {
         this.slot = slot;        
-        this.serialized = stack.serialize();
+        this.serialized = null;
         
         /* Not serialising with legacy methods */
     }
 
-    @SuppressWarnings("deprecation")
     public ItemStack getStack() {
-        if (this.serialized != null && !this.serialized.isEmpty()) {
-            return ItemStack.deserialize(serialized);
+        if (this.serialized != null) {
+            if (!this.serialized.isEmpty())
+                return ItemStack.deserialize(serialized);
+            
+            return null;
         } else {
             // Support legacy
             ItemStack r = new ItemStack(this.itemId);

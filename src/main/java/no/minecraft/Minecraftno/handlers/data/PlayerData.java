@@ -28,6 +28,7 @@ public class PlayerData implements Serializable {
     private boolean hovedchat = true;
     private boolean annonseringer = true;
     private boolean irc = true;
+    private boolean inWork = false;
     
     private String uuid;
 
@@ -320,5 +321,13 @@ public class PlayerData implements Serializable {
     public void setCachedUUID(String newuuid)
     {
     	this.uuid = newuuid;
+    }
+
+    public boolean isInWork() {
+        return inWork;
+    }
+
+    public void setInWork(boolean inWork) {
+        this.inWork = inWork;
     }
 }

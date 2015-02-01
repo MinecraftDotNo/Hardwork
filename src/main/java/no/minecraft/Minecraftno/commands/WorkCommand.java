@@ -1,18 +1,22 @@
 package no.minecraft.Minecraftno.commands;
 
 import java.io.File;
+import java.util.List;
 import java.util.logging.Level;
 
 import no.minecraft.Minecraftno.Minecraftno;
 import no.minecraft.Minecraftno.handlers.SavedObject;
+import no.minecraft.Minecraftno.handlers.data.PlayerData;
 import no.minecraft.Minecraftno.handlers.player.HultbergInventory;
 
 import org.bukkit.Material;
 import org.bukkit.command.Command;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
+@SuppressWarnings("deprecation")
 public class WorkCommand extends MinecraftnoCommand {
 
     private final Minecraftno plugin;
@@ -67,18 +71,15 @@ public class WorkCommand extends MinecraftnoCommand {
     public boolean storeInventory(Player p) {
         if (!plugin.getDataFolder().exists()) {
             plugin.getDataFolder().mkdir();
-        }
-
-        PlayerInventory pinv = p.getInventory();        
-        HultbergInventory toSave = new HultbergInventory(pinv);
-
-        File storeAt = new File(this.plugin.getDataFolder() + "/workInventories/");
-        if (!storeAt.exists()) {
-            storeAt.mkdirs();
-        }
+        }      
+        
+        File workFile = getWorkFileNew(p);
+        YamlConfiguration workYaml = YamlConfiguration.loadConfiguration(workFile);
+        workYaml.set("inventory.content", p.getInventory().getContents());
 
         try {
-            SavedObject.save(toSave, getWorkFileNew(p));
+            workYaml.save(workFile);           
+            userHandler.getPlayerData(p).setInWork(true);
             return true;
         } catch (Exception e) {
             p.sendMessage(this.getErrorChatColor() + "Kunne ikke lagre inventorien, kontakt en utvikler/stab.");
@@ -87,13 +88,14 @@ public class WorkCommand extends MinecraftnoCommand {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public boolean loadInventory(Player p) {
         if (!plugin.getDataFolder().exists()) {
             plugin.getDataFolder().mkdir();
         }
 
-        PlayerInventory pinv = p.getInventory();  
-        HultbergInventory contents = null;
+        PlayerInventory pinv = p.getInventory(); 
+        boolean legacyMode = false;
 
         File get = getWorkFileNew(p);
         if (!get.exists()) {
@@ -101,16 +103,30 @@ public class WorkCommand extends MinecraftnoCommand {
             
             if (get.exists() == false)
                 return false;
+            
+            legacyMode = true;
         }
 
         try {
-            contents = (HultbergInventory) SavedObject.load(get);
-            if (contents != null) {
-                contents.setContents(pinv);
+            /* Must support legacy as some players still have their inventory saved the old way. */
+            if (legacyMode == true) {
+                HultbergInventory contents = (HultbergInventory) SavedObject.load(get);
+                if (contents != null) {
+                    contents.setContents(pinv);
+                } else {
+                    p.sendMessage(this.getErrorChatColor() + "Inventorien var null, som kan bety at inventorien din var tom. Kontakt en stab/utvikler om du trur dette er en feil.");
+                }
             } else {
-                p.sendMessage(this.getErrorChatColor() + "Inventorien var null, som kan bety at inventorien din var tom. Kontakt en stab/utvikler om du trur dette er en feil.");
+                YamlConfiguration workYaml = YamlConfiguration.loadConfiguration(get);
+                
+                List<ItemStack> list = (List<ItemStack>) workYaml.get("inventory.content");
+                ItemStack[] content = list.toArray(new ItemStack[0]);
+                p.getInventory().setContents(content);
             }
-            get.delete();
+            
+            get.delete();            
+            userHandler.getPlayerData(p).setInWork(false);
+            
             return true;
         } catch (Exception e) {
             p.sendMessage(this.getErrorChatColor() + "Kunne ikke hente inventorien, kontakt en utvikler/stab.");
@@ -119,10 +135,17 @@ public class WorkCommand extends MinecraftnoCommand {
         }
     }
 
+    /**
+     * Indicates if player is in work. Currently the method PlayerData.isInWork is checked.
+     * Legacy is checking if work inventory file exists.
+     * 
+     * @param p
+     * @return
+     */
     public static boolean isInWork(Player p) {
-        File f = getWorkFileNew(p);
+        PlayerData pd = Minecraftno.getInstance().getUserHandler().getPlayerData(p);
         
-        if (f.exists() == false) {
+        if (pd.isInWork() == false) {
             File f2 = getWorkFileLegacy(p);
             return f2.exists();
         }

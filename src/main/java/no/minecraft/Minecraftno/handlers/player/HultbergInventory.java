@@ -6,6 +6,11 @@ import org.bukkit.inventory.ItemStack;
 import java.io.Serializable;
 import java.util.HashSet;
 
+/**
+ * @deprecated Using Yaml configs for saving inventories, see no.minecraft.Minecraftno.commands.WorkCommand.java
+ * @author Edvin
+ *
+ */
 public class HultbergInventory implements Serializable {
 
     /**
