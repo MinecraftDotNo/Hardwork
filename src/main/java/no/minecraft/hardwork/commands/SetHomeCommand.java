@@ -34,7 +34,10 @@ public class SetHomeCommand implements CommandExecutor {
 
         User user = uh.getUser(player.getUniqueId());
 
-        if (args.length == 0 || args[0].equalsIgnoreCase("ja")) {
+        if (args.length == 0) {
+            player.sendMessage(ChatColor.GRAY + "Det koster " + ChatColor.RED + "50 gull " + ChatColor.GRAY + " å sette home. Skriv \"/sethome ja\" for å godkjenne.");
+            return true;
+        } else if (args.length == 1 && args[0].equalsIgnoreCase("ja")) {
             if (user.getAccessLevel() < 3) {
                 // Todo: Rewrite. This relies on old MinecraftNo code.
                 BankHandler bank = ((Minecraftno) this.hardwork.getPlugin()).getBankHandler();
@@ -50,7 +53,7 @@ public class SetHomeCommand implements CommandExecutor {
             uh.setHome(user, player.getLocation());
             player.sendMessage(ChatColor.GREEN + "Home satt :)");
             return true;
-        } else if (user.getAccessLevel() >= 3) {
+        } else if (args.length == 1 && user.getAccessLevel() >= 3) {
             User target = uh.getUser(args[0]);
 
             if (target == null) {
@@ -61,13 +64,11 @@ public class SetHomeCommand implements CommandExecutor {
             uh.setHome(target, player.getLocation());
             player.sendMessage(ChatColor.GREEN + "Home for " + target.getName() + " satt :)");
             return true;
-        } else {
+        } else if (args.length == 1 && user.getAccessLevel() < 3) {
             player.sendMessage(ChatColor.RED + "Du har ikke tilgang til å sette andres home.");
             return true;
         }
 
-        player.sendMessage(ChatColor.GRAY + "Det koster " + ChatColor.RED + "50 gull " + ChatColor.GRAY + " å sette home. Skriv \"/sethome ja\" for å godkjenne.");
-
-        return true;
+        return false;
     }
 }
