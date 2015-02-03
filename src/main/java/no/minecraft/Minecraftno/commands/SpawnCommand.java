@@ -23,6 +23,7 @@ public class SpawnCommand extends MinecraftnoCommand {
             if (this.userHandler.getFreeze(player)) {
                 player.sendMessage(getErrorChatColor() + "Du kan ikke bruke /spawn når du er fryst");
             } else {
+                this.userHandler.setTeleportBackLocation(player, player.getLocation());
                 player.teleport(spawn);
             }
             if (this.userHandler.isRegPlayer(player)) {
