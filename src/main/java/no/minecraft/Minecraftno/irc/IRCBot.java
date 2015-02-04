@@ -112,7 +112,7 @@ public class IRCBot extends PircBot {
                             if (message.contains(("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}"))) {
                                 sendMessage(channel, "Ingen reklame!");
                             } else {
-                                String msg = message.trim();
+                                String msg = message.replace('§', ' ').trim();
                                 for (Player reciever : this.plugin.getServer().getOnlinePlayers()) {
                                     if (this.userHandler.getirc(reciever)) {
                                         reciever.sendMessage(ChatColor.GRAY + this.userHandler.getIrcToGamePrefix(user) + sender + ": " + ChatColor.WHITE + msg);
