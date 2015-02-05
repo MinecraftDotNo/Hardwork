@@ -114,28 +114,32 @@ public class UserHandler {
      * Because mojang will allow name changing soon,
      * this function will then update name in database if its different.
      * That means rest of the plugin will work as before.
+     * 
+     * If name has changed its inserted into name_history table.
      * @param p
      */
     public void updatePlayer(Player p)
     {
     	// Update UUID in db (in case it's not set)
-    	updatePlayerUUID(p);
+    	//updatePlayerUUID(p);
     	
+    	// Fetch current nick from database.
     	String dbName = this.sqlHandler.getColumn("SELECT `name` FROM `Minecraftno`.`users` WHERE `uuid` = '" + p.getUniqueId().toString() + "'");
     	
-    	if (dbName == null) {
-    		return; // User not registered.
-    	}
+    	if (dbName == null)
+    		return; // User not registered, no need to update a namechange as player do not exist in system.
     	
+    	// Check if players current name is different to what we have in the database.
     	if (!(p.getName().equalsIgnoreCase(dbName))) {        	
+    	    // Do name change in database.
         	this.sqlHandler.update("UPDATE `Minecraftno`.`users` SET `name` = '" + p.getName() + "' WHERE `uuid` = '" + p.getUniqueId().toString() + "'");
         	
-        	/* Put name change (if there is one) */
+        	// Put this name change in own table to keep a record.
         	this.sqlHandler.update("INSERT INTO `Minecraftno`.`name_history`(uuid, old_name, new_name)" +
         			"VALUES('"+p.getUniqueId().toString()+"', '"+dbName+"', '"+p.getName()+"')");
     	}
     	
-    	/* Update name of player file if it exists with nick */
+    	// Rename PlayerData file if it still exist with nick to UUID.
     	File search = new File(plugin.getDataFolder() + "/players/", dbName);
     	if (search.exists()) {
     		search.renameTo(new File(plugin.getDataFolder() + "/players/", p.getUniqueId().toString()));
@@ -150,15 +154,7 @@ public class UserHandler {
      */
     public void updatePlayerUUID(Player p)
     {
-    	String dbName = this.sqlHandler.getColumn("SELECT `uuid` FROM `Minecraftno`.`users` WHERE `name` = '" + p.getName() + "'");
-    	
-    	if (dbName == null) {
-    		return; // User not registered.
-    	}
-    	
-    	if (dbName.equalsIgnoreCase("ingen")) {        	
-        	this.sqlHandler.update("UPDATE `Minecraftno`.`users` SET `uuid` = '" + p.getUniqueId().toString() + "' WHERE `name` = '"+p.getName()+"'");
-    	}
+    	// method handled in no.hardwork
     }
     
     /**

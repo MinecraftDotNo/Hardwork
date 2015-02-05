@@ -1,7 +1,13 @@
 package no.minecraft.hardwork.handlers;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.URL;
+import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -19,7 +25,6 @@ import no.minecraft.hardwork.Hardwork;
 import no.minecraft.hardwork.User;
 import no.minecraft.hardwork.database.DataConsumer;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -31,6 +36,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class UserHandler implements Handler, DataConsumer {
     private Hardwork hardwork;
@@ -49,6 +57,9 @@ public class UserHandler implements Handler, DataConsumer {
 
     private PreparedStatement queryLastLogin;
 
+    private PreparedStatement queryUserHasUUID;
+    private PreparedStatement queryInsertNickHistory;
+
     private File homesFile;
     private YamlConfiguration homes;
 
@@ -66,7 +77,7 @@ public class UserHandler implements Handler, DataConsumer {
     public void onEnable() {
         this.homesFile = new File(this.hardwork.getPlugin().getDataFolder(), "homes.yml");
         this.workConfigFile = new File(this.hardwork.getPlugin().getDataFolder(), "workInvs.yml");
-        this.workConfigFile = new File(this.hardwork.getPlugin().getDataFolder(), "backLocations.yml");
+        this.backConfigFile = new File(this.hardwork.getPlugin().getDataFolder(), "backLocations.yml");
 
         this.loadHomes();
         this.loadWorks();
@@ -103,6 +114,9 @@ public class UserHandler implements Handler, DataConsumer {
         this.queryUserName = conn.prepareStatement("SELECT u.id, u.uuid, u.name, a.accesslevel FROM Minecraftno.users AS u, Hardwork.access AS a WHERE u.id=a.userID AND u.name=?");
 
         this.queryLastLogin = conn.prepareStatement("SELECT ip, time FROM Hardwork.userlog WHERE name=? ORDER BY time DESC LIMIT 1");
+
+        this.queryUserHasUUID = conn.prepareStatement("SELECT 1 FROM Minecraftno.users WHERE uuid='ingen' AND name=?");
+        this.queryInsertNickHistory = conn.prepareStatement("INSERT INTO Minecraftno.name_history(uuid, old_name, new_name)VALUES(?, ?, ?)");
     }
 
     public boolean userExists(UUID uuid, String name) {
@@ -247,6 +261,88 @@ public class UserHandler implements Handler, DataConsumer {
         }
 
         return user;
+    }
+    
+    /**
+     * Method to check for missing UUID in the database. Empty UUID will contain "ingen"
+     * Checks if user exists in the database by current nick, if not fetches name history from
+     * mojang and checks every nick against database to get a match. If there is a match the
+     * UUID will be checked for being empty. If empty we will set UUID, and if filled we ignore
+     * everything.
+     * 
+     * @param player
+     * @return
+     */
+    public boolean updateMissingUUID(Player player) throws SQLException {
+        boolean hasUUID = true;
+        
+        this.queryUserHasUUID.setString(1, player.getName());
+        ResultSet rs = this.queryUserHasUUID.executeQuery();
+        
+        hasUUID = rs.next();
+        
+        rs.close();
+        this.queryUserHasUUID.clearParameters();
+        
+        if (hasUUID == false) {
+            // Fetch name history to check for missing UUID.
+            try {
+                String uuid = player.getUniqueId().toString().replaceAll("-", "");
+                JSONArray json = UserHandler.readJsonFromUrl("https://api.mojang.com/user/profiles/" + uuid + "/names");
+                
+                if (json.length() > 0) {
+                    // If over 1 there is a name history 
+                    // Loop each name change to find the one we have in the database.
+                    boolean stopLoop = false;
+                    
+                    for (int i=0; i < json.length(); i++) {
+                        JSONObject nameChangeJson = (JSONObject) json.get(i);
+                        this.queryUserName.setString(1, nameChangeJson.getString("name"));
+                        ResultSet rs2 = this.queryUserName.executeQuery();
+                        if (rs2.next()) {
+                            // Match for this name in database. User has been registered before.
+                            // If UUID now is "ingen" we will set the new UUID.
+                            // If UUID is not "ingen" then there is pending namechange.
+                            if (rs2.getString("uuid") == "ingen") {
+                                // Set UUID.
+                                PreparedStatement updateUUID = this.hardwork.getDatabase()
+                                        .getConnection().prepareStatement("UPDATE `Minecraftno`.`users` SET `uuid`=? WHERE `id`=?");
+                                updateUUID.setString(1, player.getUniqueId().toString());
+                                updateUUID.setInt(2, rs2.getInt("id"));
+                                updateUUID.executeUpdate();
+                                updateUUID.close();
+                                
+                                this.queryInsertNickHistory.setString(1, player.getUniqueId().toString());
+                                this.queryInsertNickHistory.setString(2, rs2.getString("name"));
+                                this.queryInsertNickHistory.setString(3, player.getName());
+                                this.queryInsertNickHistory.executeUpdate();
+                                this.queryInsertNickHistory.clearParameters();
+                                
+                                clearCachedUser(getUser(player.getUniqueId()));
+                                stopLoop = true;
+                            }
+                        }
+                        
+                        rs2.close();
+                        this.queryUserName.clearParameters(); 
+                        
+                        if (stopLoop)
+                            break;                       
+                    } // end for loop
+                } else {
+                    // By this point there is no name changes detected, not doing anything as user might be guest.
+                    return false;
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return false;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        
+        return true;
     }
 
     public User getUser(int id) {
@@ -663,7 +759,7 @@ public class UserHandler implements Handler, DataConsumer {
     /* Back-teleport methods                                        */
     /*--------------------------------------------------------------*/
 
-    public void loadBackLocations() {
+    public void loadBackLocations() {            
         this.backLocations = YamlConfiguration.loadConfiguration(this.backConfigFile);
     }
     
@@ -727,6 +823,27 @@ public class UserHandler implements Handler, DataConsumer {
             return null;        
         
         return new Location(world, x, y, z, yaw, pitch);
+    }
+    
+    private static String readAll(Reader rd) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        int cp;
+        while ((cp = rd.read()) != -1) {
+            sb.append((char) cp);
+        }
+        return sb.toString();
+    }
+
+    public static JSONArray readJsonFromUrl(String url) throws IOException, JSONException {
+        InputStream is = new URL(url).openStream();
+        try {
+            BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+            String jsonText = readAll(rd);
+            JSONArray arr = new JSONArray(jsonText);
+            return arr;
+        } finally {
+            is.close();
+        }
     }
     
 }

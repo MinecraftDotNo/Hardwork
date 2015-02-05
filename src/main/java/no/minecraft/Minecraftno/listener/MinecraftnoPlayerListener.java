@@ -734,6 +734,12 @@ public class MinecraftnoPlayerListener implements Listener {
         ConfigurationServer cfg = this.plugin.getGlobalConfiguration();
         int Maxplayers = cfg.maxplayers;
         int OnlinePlayers = plugin.getServer().getOnlinePlayers().size() - 1;
+        
+        // Plugin do not check for name change before PlayerJoinEvent is called, this can be
+        // problematic as players that are banned will be allowed to join because we have
+        // not catched up to players new nick. Call updatePlayer here to check & update if
+        // there is a name change.
+        userHandler.updatePlayer(player);
 
         BanData banData = this.userHandler.getBanData(player.getName());
         if (banData != null) {

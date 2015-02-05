@@ -76,6 +76,12 @@
             <artifactId>bukkit</artifactId>
             <version>1.8-R0.1-SNAPSHOT</version>
 		</dependency>
+		
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20141113</version>
+        </dependency>
 
         <dependency>
             <groupId>com.sk89q</groupId>
@@ -158,6 +164,7 @@
                                     <include>net.sf.ehcache:ehcache-core</include>
                                     <include>org.slf4j:slf4j-api</include>
                                     <include>org.slf4j:slf4j-jdk14</include>
+                                    <include>org.json:json</include>
                                 </includes>
                             </artifactSet>
                         </configuration>
