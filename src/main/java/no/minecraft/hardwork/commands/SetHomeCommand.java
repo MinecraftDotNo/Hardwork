@@ -38,7 +38,7 @@ public class SetHomeCommand implements CommandExecutor {
             player.sendMessage(ChatColor.GRAY + "Det koster " + ChatColor.RED + "50 gull " + ChatColor.GRAY + " å sette home. Skriv \"/sethome ja\" for å godkjenne.");
             return true;
         } else if (args.length == 1 && args[0].equalsIgnoreCase("ja")) {
-            if (user.getAccessLevel() < 3) {
+            if (user.getAccessLevel() <= 1) {
                 // Todo: Rewrite. This relies on old MinecraftNo code.
                 BankHandler bank = ((Minecraftno) this.hardwork.getPlugin()).getBankHandler();
 
