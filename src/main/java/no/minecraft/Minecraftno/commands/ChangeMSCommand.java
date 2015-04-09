@@ -1,6 +1,8 @@
 package no.minecraft.Minecraftno.commands;
 
 import no.minecraft.Minecraftno.Minecraftno;
+
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.command.Command;
@@ -8,7 +10,9 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 public class ChangeMSCommand extends MinecraftnoCommand {
 
@@ -55,7 +59,10 @@ public class ChangeMSCommand extends MinecraftnoCommand {
                 player.sendMessage(utskrift);
                 return true;
             } else {
-                Block b = player.getTargetBlock(null, 5);
+            	Set<Material> transparentBlocks = new HashSet<Material>();
+            	transparentBlocks.add(Material.AIR);
+            	
+                Block b = player.getTargetBlock(transparentBlocks, 5);
                 if (b != null && b.getState() instanceof CreatureSpawner) {
                     if (this.getSpawner(args[0]) != null) {
                         CreatureSpawner mobSpawner = (CreatureSpawner) b.getState();

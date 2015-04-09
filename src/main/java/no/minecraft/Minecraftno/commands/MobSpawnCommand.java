@@ -1,12 +1,16 @@
 package no.minecraft.Minecraftno.commands;
 
 import no.minecraft.Minecraftno.Minecraftno;
+
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 public class MobSpawnCommand extends MinecraftnoCommand {
 
@@ -38,8 +42,11 @@ public class MobSpawnCommand extends MinecraftnoCommand {
 
     @Override
     public final boolean onPlayerCommand(Player player, Command command, String label, String[] args) {
+    	Set<Material> transparentBlocks = new HashSet<Material>();
+    	transparentBlocks.add(Material.AIR);
+    	
         if (args.length == 2) {
-            if (player.getTargetBlock(null, 50) != null) {
+            if (player.getTargetBlock(transparentBlocks, 50) != null) {
                 if (args[0].equalsIgnoreCase("liste")) {
                     StringBuilder moblist = new StringBuilder();
                     for (String type : mobs.keySet()) {
@@ -51,7 +58,7 @@ public class MobSpawnCommand extends MinecraftnoCommand {
                     return true;
                 } else {
                     if (args.length == 1) {
-                        Block block = player.getTargetBlock(null, 50);
+                        Block block = player.getTargetBlock(transparentBlocks, 50);
                         if (this.getMob(args[0]) != null) {
                             block.getWorld().spawn(block.getLocation().add(0.0D, 2.0D, 0.0D), getMob(args[0]).getEntityClass());
                             player.sendMessage(getOkChatColor() + "1 " + args[0]);
@@ -65,7 +72,7 @@ public class MobSpawnCommand extends MinecraftnoCommand {
                             this.invalidInt(player, args[1]);
                             return false;
                         }
-                        Block b = player.getTargetBlock(null, 50);
+                        Block b = player.getTargetBlock(transparentBlocks, 50);
                         int i = 0;
                         if (getMob(args[0]) != null) {
                             while (i < Integer.parseInt(args[1])) {
