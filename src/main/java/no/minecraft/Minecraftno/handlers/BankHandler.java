@@ -77,6 +77,8 @@ public class BankHandler {
      * Provides the current amount of this player in the bank table.
      * The row might not exists so if there is no valid amount the row is created.
      * 
+     * This is called when a user logins in.
+     * 
      * @param player
      * @return Integer
      */
@@ -93,17 +95,11 @@ public class BankHandler {
         return Integer.parseInt(amount);
     }
 
-    public boolean setAmount(Player player, int amount) {
-    	// Make sure the row in the bank table exists on this player by calling getAmount with players nick.
-    	getAmount(player);
-    	
+    public boolean setAmount(Player player, int amount) {    	
         return this.sqlHandler.update("UPDATE bank SET amount=" + amount + " WHERE `userid`=" + this.userHandler.getUserId(player));
     }
 
-    public boolean insertAmount(String player, int amount) {
-    	// Make sure the row in the bank table exists on this player by calling getAmount with players nick.
-    	getAmount(player);
-    	
+    public boolean insertAmount(String player, int amount) {    	
         return this.sqlHandler.update("UPDATE bank SET amount=amount+" + amount + " WHERE `userid`=" + this.userHandler.getUserId(player));
     }
 

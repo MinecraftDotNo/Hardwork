@@ -123,6 +123,9 @@ public class UserHandler {
     	// Update UUID in db (in case it's not set)
     	//updatePlayerUUID(p);
     	
+    	// Try fetching the current bank amount to verify that the row exists on the user.
+    	this.plugin.getBankHandler().getAmount(p.getName());
+    	
     	// Fetch current nick from database.
     	String dbName = this.sqlHandler.getColumn("SELECT `name` FROM `Minecraftno`.`users` WHERE `uuid` = '" + p.getUniqueId().toString() + "'");
     	
