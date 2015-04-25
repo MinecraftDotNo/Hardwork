@@ -90,7 +90,7 @@ public class MinecraftnoEntityListener implements Listener {
         }
         
         // Player as defender must get first priority!
-        if (defender instanceof Player) {            
+        if (defender instanceof Player) {           
             Player player = (Player) defender;
             if (this.userHandler.getAccess(player) > 2) {
                 if (WorkCommand.isInWork(player)) {
@@ -122,30 +122,33 @@ public class MinecraftnoEntityListener implements Listener {
             }
         }
 
+        // Check if the defender is a entity
         if (defender instanceof Entity) {
             Entity entity = defender;
 
-            if (attacker instanceof Player) {
-                Player player = (Player) attacker;
-                if (entity.getType() == EntityType.ITEM_FRAME) {
-                    String ownerofFrame = this.blockInfo.getOwner(entity.getLocation());
-                    if (ownerofFrame != null) {
-                        int grOwner = this.groupHandler.getGroupIDFromName(ownerofFrame);
-                        if (!((ownerofFrame.equalsIgnoreCase(player.getName())) || (grOwner != 0 && grOwner == this.groupHandler.getGroupID(player)))) {
-                            player.sendMessage(ChatColor.RED + ownerofFrame + " eier denne itemframen og er derfor beskyttet.");
-                            event.setCancelled(true);
-                            return;
-                        }
-                    }
-                }    
-            }
-
-            // Handle horse damage.
+            // Attacker is also a entity
             if (event instanceof EntityDamageByEntityEvent) {
                 EntityDamageByEntityEvent subEvent = (EntityDamageByEntityEvent) event;
                 attacker = subEvent.getDamager();
-                
-                if (attacker.getType() == EntityType.HORSE) {
+
+	            // Handle ItemFrame damage.
+	            if (attacker instanceof Player) {
+	                Player player = (Player) attacker;
+	                if (entity.getType() == EntityType.ITEM_FRAME) {
+	                    String ownerofFrame = this.blockInfo.getOwner(entity.getLocation());
+	                    if (ownerofFrame != null) {
+	                        int grOwner = this.groupHandler.getGroupIDFromName(ownerofFrame);
+	                        if (!((ownerofFrame.equalsIgnoreCase(player.getName())) || (grOwner != 0 && grOwner == this.groupHandler.getGroupID(player)))) {
+	                            player.sendMessage(ChatColor.RED + ownerofFrame + " eier denne itemframen og er derfor beskyttet.");
+	                            event.setCancelled(true);
+	                            return;
+	                        }
+	                    }
+	                }    
+	            }
+	            
+	            // Handle horse damage.
+                if (defender.getType() == EntityType.HORSE) {
                     Horse horsy = (Horse) entity;
                     
                     if (this._resolveHorseDamage(horsy, type, attacker)) {
@@ -154,6 +157,7 @@ public class MinecraftnoEntityListener implements Listener {
                     }
                 }
             } else {
+            	// General horse damage like falling and fire.
                 if (entity.getType() == EntityType.HORSE) {
                     Horse horsy = (Horse) entity;
                     if (this._resolveHorseDamage(horsy, type, attacker)) {
