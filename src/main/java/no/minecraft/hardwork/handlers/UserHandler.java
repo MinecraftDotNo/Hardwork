@@ -276,6 +276,8 @@ public class UserHandler implements Handler, DataConsumer {
     public boolean updateMissingUUID(Player player) throws SQLException {
         boolean hasUUID = true;
         
+        this.hardwork.getDatabase().getConnection();
+        
         this.queryUserHasUUID.setString(1, player.getName());
         ResultSet rs = this.queryUserHasUUID.executeQuery();
         
