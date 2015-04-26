@@ -68,7 +68,7 @@ public class UserHandler implements Handler, DataConsumer {
 
     private File backConfigFile;
     private YamlConfiguration backLocations;
-    
+
     public UserHandler(Hardwork hardwork) {
         this.hardwork = hardwork;
     }
@@ -262,41 +262,44 @@ public class UserHandler implements Handler, DataConsumer {
 
         return user;
     }
-    
+
     /**
      * Method to check for missing UUID in the database. Empty UUID will contain "ingen"
      * Checks if user exists in the database by current nick, if not fetches name history from
      * mojang and checks every nick against database to get a match. If there is a match the
      * UUID will be checked for being empty. If empty we will set UUID, and if filled we ignore
      * everything.
-     * 
+     *
+     * TODO: Introduce logging.
+     *
      * @param player
      * @return
      */
     public boolean updateMissingUUID(Player player) throws SQLException {
         boolean hasUUID = true;
-        
+
         this.hardwork.getDatabase().getConnection();
-        
+
         this.queryUserHasUUID.setString(1, player.getName());
         ResultSet rs = this.queryUserHasUUID.executeQuery();
-        
-        hasUUID = rs.next();
-        
+
+        // User has UUID if there were not results from the query.
+        hasUUID = rs.next() == false;
+
         rs.close();
         this.queryUserHasUUID.clearParameters();
-        
+
         if (hasUUID == false) {
             // Fetch name history to check for missing UUID.
             try {
                 String uuid = player.getUniqueId().toString().replaceAll("-", "");
                 JSONArray json = UserHandler.readJsonFromUrl("https://api.mojang.com/user/profiles/" + uuid + "/names");
-                
+
                 if (json.length() > 0) {
-                    // If over 1 there is a name history 
+                    // If over 1 there is a name history
                     // Loop each name change to find the one we have in the database.
                     boolean stopLoop = false;
-                    
+
                     for (int i=0; i < json.length(); i++) {
                         JSONObject nameChangeJson = (JSONObject) json.get(i);
                         this.queryUserName.setString(1, nameChangeJson.getString("name"));
@@ -305,7 +308,7 @@ public class UserHandler implements Handler, DataConsumer {
                             // Match for this name in database. User has been registered before.
                             // If UUID now is "ingen" we will set the new UUID.
                             // If UUID is not "ingen" then there is pending namechange.
-                            if (rs2.getString("uuid") == "ingen") {
+                            if (rs2.getString("uuid").equalsIgnoreCase("ingen")) {
                                 // Set UUID.
                                 PreparedStatement updateUUID = this.hardwork.getDatabase()
                                         .getConnection().prepareStatement("UPDATE `Minecraftno`.`users` SET `uuid`=? WHERE `id`=?");
@@ -313,23 +316,29 @@ public class UserHandler implements Handler, DataConsumer {
                                 updateUUID.setInt(2, rs2.getInt("id"));
                                 updateUUID.executeUpdate();
                                 updateUUID.close();
-                                
-                                this.queryInsertNickHistory.setString(1, player.getUniqueId().toString());
-                                this.queryInsertNickHistory.setString(2, rs2.getString("name"));
-                                this.queryInsertNickHistory.setString(3, player.getName());
-                                this.queryInsertNickHistory.executeUpdate();
-                                this.queryInsertNickHistory.clearParameters();
-                                
-                                clearCachedUser(getUser(player.getUniqueId()));
+
+                                // Record name change if this name is different from the earlier one.
+                                if (rs2.getString("name").equalsIgnoreCase(player.getName()) == false) {
+                                    this.queryInsertNickHistory.setString(1, player.getUniqueId().toString());
+                                    this.queryInsertNickHistory.setString(2, rs2.getString("name"));
+                                    this.queryInsertNickHistory.setString(3, player.getName());
+                                    this.queryInsertNickHistory.executeUpdate();
+                                    this.queryInsertNickHistory.clearParameters();
+                                }
+
+                                User user = getUser(player.getUniqueId());
+                                if (user != null)
+                                	clearCachedUser(user);
+
                                 stopLoop = true;
                             }
                         }
-                        
+
                         rs2.close();
-                        this.queryUserName.clearParameters(); 
-                        
+                        this.queryUserName.clearParameters();
+
                         if (stopLoop)
-                            break;                       
+                            break;
                     } // end for loop
                 } else {
                     // By this point there is no name changes detected, not doing anything as user might be guest.
@@ -343,7 +352,7 @@ public class UserHandler implements Handler, DataConsumer {
                 return false;
             }
         }
-        
+
         return true;
     }
 
@@ -604,7 +613,7 @@ public class UserHandler implements Handler, DataConsumer {
             team.addPlayer(player);
         }
     }
-    
+
     /*--------------------------------------------------------------*/
     /* Home methods                                                 */
     /*--------------------------------------------------------------*/
@@ -652,7 +661,7 @@ public class UserHandler implements Handler, DataConsumer {
 
         this.saveHomes();
     }
-    
+
     /*--------------------------------------------------------------*/
     /* Work methods                                                 */
     /*--------------------------------------------------------------*/
@@ -660,31 +669,31 @@ public class UserHandler implements Handler, DataConsumer {
     public void loadWorks() {
         this.workInventories = YamlConfiguration.loadConfiguration(workConfigFile);
     }
-    
+
     /**
      * Indicates if Player is in work. Based on User.isWorking()
-     * 
+     *
      * @param player
      * @return boolean
      */
     public boolean isInWork(Player player) {
         return getUser(player.getUniqueId()).isWorking();
     }
-    
+
     /**
      * Saves player's inventory to disk and give work items.
-     * 
+     *
      * @param player
      * @return false on failure.
      */
     public boolean saveInventoryForWork(Player player) {
         String uuid = player.getUniqueId().toString();
-        
+
         if (isInWork(player) == true)
             return false;
-        
+
         PlayerInventory pinv = player.getInventory();
-        
+
         try {
             workInventories.set("inventory." + uuid, player.getInventory().getContents());
             workInventories.save(workConfigFile);
@@ -692,15 +701,15 @@ public class UserHandler implements Handler, DataConsumer {
             Minecraftno.log.log(Level.SEVERE, "[Hardwork] Kunne ikke lagre inventory.", ex); // TODO: Log with Hardwork.
             return false; // Stop method here.
         }
-        
+
         // Seems that saving of inventory went fine, time to give user his/her items.
         pinv.clear();
-        
+
         User user = getUser(player.getUniqueId());
-        
+
         pinv.setItem(0, new ItemStack(Material.WATCH, 1));
         pinv.setItem(7, new ItemStack(Material.SPONGE, 1));
-        
+
         if (user.getAccessLevel() > 2) {
             pinv.setItem(1, new ItemStack(Material.COMPASS, 1));
             pinv.setItem(2, new ItemStack(Material.STICK, 1));
@@ -713,25 +722,25 @@ public class UserHandler implements Handler, DataConsumer {
             pinv.setItem(10, new ItemStack(Material.LAVA, -1));
             pinv.setItem(11, new ItemStack(Material.FIRE, -1));
         }
-        
+
         return true;
     }
-    
+
     /**
      * Loads saved inventory and give's player back it's items.
-     * 
+     *
      * @param player
      * @return false on failure.
      */
     @SuppressWarnings("unchecked")
     public boolean setSavedInventoryWork(Player player) {
         String uuid = player.getUniqueId().toString();
-        
+
         if (isInWork(player) == false)
             return false;
-        
+
         ItemStack[] content = null;
-        
+
         // Try loading inventory from disk.
         try {
             List<ItemStack> list = (List<ItemStack>) workInventories.get("inventory." + uuid);
@@ -740,12 +749,12 @@ public class UserHandler implements Handler, DataConsumer {
             Minecraftno.log.log(Level.SEVERE, "[Hardwork] Kunne ikke hente inventory.", ex); // TODO: Log with Hardwork.
             return false;
         }
-        
+
         if (content != null) {
             player.getInventory().clear();
             player.getInventory().setContents(content);
         }
-        
+
         // "remove" inventory from work file.
         workInventories.set("inventory." + uuid, null);
         try {
@@ -753,18 +762,18 @@ public class UserHandler implements Handler, DataConsumer {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
+
         return true;
     }
-    
+
     /*--------------------------------------------------------------*/
     /* Back-teleport methods                                        */
     /*--------------------------------------------------------------*/
 
-    public void loadBackLocations() {            
+    public void loadBackLocations() {
         this.backLocations = YamlConfiguration.loadConfiguration(this.backConfigFile);
     }
-    
+
     public void saveBackLocations() {
         try {
             this.backLocations.save(this.backConfigFile);
@@ -772,10 +781,10 @@ public class UserHandler implements Handler, DataConsumer {
             e.printStackTrace();
         }
     }
-    
+
     /**
      * Set new back location.
-     * 
+     *
      * @param user
      * @param loc
      */
@@ -787,19 +796,19 @@ public class UserHandler implements Handler, DataConsumer {
         this.backLocations.set(key + ".pitch", loc.getPitch());
         this.backLocations.set(key + ".yaw", loc.getYaw());
         this.backLocations.set(key + ".world", loc.getWorld().getName());
-        
+
         this.saveBackLocations();
     }
-    
+
     /**
-     * Provides latest Location saved. 
-     * 
+     * Provides latest Location saved.
+     *
      * @param user
      * @return
      */
     public Location getBackLocation(User user) {
         String key = Integer.toString(user.getId());
-        
+
         if (this.backLocations.contains(key) == false)
             return null;
 
@@ -809,7 +818,7 @@ public class UserHandler implements Handler, DataConsumer {
         float pitch = 0;
         float yaw = 0;
         World world = this.hardwork.getPlugin().getServer().getWorld("world");
-        
+
         try {
             x = this.backLocations.getInt(key + ".x");
             y = this.backLocations.getInt(key + ".y");
@@ -820,13 +829,13 @@ public class UserHandler implements Handler, DataConsumer {
         } catch (NumberFormatException ex) {
             return null;
         }
-        
+
         if (world == null)
-            return null;        
-        
+            return null;
+
         return new Location(world, x, y, z, yaw, pitch);
     }
-    
+
     private static String readAll(Reader rd) throws IOException {
         StringBuilder sb = new StringBuilder();
         int cp;
@@ -847,5 +856,5 @@ public class UserHandler implements Handler, DataConsumer {
             is.close();
         }
     }
-    
+
 }
