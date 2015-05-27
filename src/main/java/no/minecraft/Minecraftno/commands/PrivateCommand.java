@@ -1,12 +1,13 @@
 package no.minecraft.Minecraftno.commands;
 
-import com.sk89q.worldedit.Vector;
-import com.sk89q.worldedit.bukkit.selections.Selection;
+import java.util.ArrayList;
+
 import no.minecraft.Minecraftno.Minecraftno;
 import no.minecraft.Minecraftno.handlers.GroupHandler;
 import no.minecraft.Minecraftno.handlers.WEBridge;
 import no.minecraft.Minecraftno.handlers.blocks.BlockInfoHandler;
 import no.minecraft.Minecraftno.handlers.blocks.PrivateProtectionHandler;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -14,7 +15,8 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
+import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.bukkit.selections.Selection;
 
 public class PrivateCommand extends MinecraftnoCommand {
 
@@ -90,9 +92,9 @@ public class PrivateCommand extends MinecraftnoCommand {
                     Block atm = player.getWorld().getBlockAt(x, y, z); // Blokken at the moment in the 'for' loop.
                     Block toAdd = null;
 
-                    if (atm.getType() == Material.WOODEN_DOOR || atm.getType() == Material.IRON_DOOR_BLOCK) {
+                    if (isDoor(atm.getType())) {
                         Block down = atm.getRelative(BlockFace.DOWN);
-                        if (down != null && (down.getType() == Material.WOODEN_DOOR || down.getType() == Material.IRON_DOOR_BLOCK)) {
+                        if (down != null && (isDoor(down.getType()))) {
                             toAdd = down; // Only protect bottom part.
                         }
                     } else if (atm.getType() == Material.CHEST) {
@@ -118,13 +120,13 @@ public class PrivateCommand extends MinecraftnoCommand {
                             }
                             totalAdded++;
                         }
-                    } else {
+                    } else { // end for toAdd, start else
                         /* Defining this as failed since block is null, this should happend.. */
                         totalFailed++;
                     }
-                }
-            }
-        }
+                } // end for z
+            } // end for y
+        } // end for X
 
         /* Determine message to return. */
         /**
@@ -161,5 +163,26 @@ public class PrivateCommand extends MinecraftnoCommand {
 
         for (String s : msg)
             player.sendMessage(s);
+    }
+
+    /**
+     * Indicates if the material is a door.
+     * @param mat
+     * @return
+     */
+    private boolean isDoor(Material mat) {
+        if (
+               mat == Material.WOODEN_DOOR
+            || mat == Material.IRON_DOOR_BLOCK
+            || mat == Material.SPRUCE_DOOR
+            || mat == Material.ACACIA_DOOR
+            || mat == Material.JUNGLE_DOOR
+            || mat == Material.BIRCH_DOOR
+            || mat == Material.DARK_OAK_DOOR
+        ) { // startif mat == doors
+            return true;
+        } // endif mat == doors
+
+        return false;
     }
 }

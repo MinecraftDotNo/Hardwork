@@ -1,5 +1,15 @@
 package no.minecraft.Minecraftno.listener;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+
 import no.minecraft.Minecraftno.Minecraftno;
 import no.minecraft.Minecraftno.conf.ConfigurationServer;
 import no.minecraft.Minecraftno.conf.ConfigurationWorld;
@@ -16,24 +26,48 @@ import no.minecraft.Minecraftno.handlers.player.ChatHandler;
 import no.minecraft.Minecraftno.handlers.player.NisseHandler;
 import no.minecraft.Minecraftno.handlers.player.Teleporter;
 import no.minecraft.Minecraftno.handlers.player.UserHandler;
-import org.bukkit.*;
-import org.bukkit.block.*;
-import org.bukkit.entity.*;
+
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Beacon;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.BrewingStand;
+import org.bukkit.block.Chest;
+import org.bukkit.block.Dispenser;
+import org.bukkit.block.Dropper;
+import org.bukkit.block.Furnace;
+import org.bukkit.block.Hopper;
+import org.bukkit.block.Sign;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Horse;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Wolf;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerBucketFillEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerKickEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.util.BlockIterator;
 import org.jibble.pircbot.Colors;
-
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class MinecraftnoPlayerListener implements Listener {
 
@@ -203,19 +237,19 @@ public class MinecraftnoPlayerListener implements Listener {
                     }
                 }
             }
-        } else if (e.getType() == EntityType.HORSE) {   
+        } else if (e.getType() == EntityType.HORSE) {
             Horse h = (Horse) e;
             String owner = "ingen";
             if (h.isTamed() && h.getOwner() != null) {
                 owner = h.getOwner().getName();
             }
-            
+
         	if (player.getItemInHand().getType() == Material.WATCH) {
                 player.sendMessage("Eier av hesten: " + ChatColor.BLUE + owner);
         		event.setCancelled(true);
                 return;
         	}
-        	
+
         	if (!owner.equalsIgnoreCase("ingen") && !owner.equalsIgnoreCase(player.getName())) {
         		player.sendMessage(ChatColor.RED + "Denne hesten er eid av " + ChatColor.WHITE + owner + ChatColor.RED + " så du kan ikke interakte med den.");
         		event.setCancelled(true);
@@ -330,25 +364,35 @@ public class MinecraftnoPlayerListener implements Listener {
         }
 
         if (block != null && event.getAction() == Action.PHYSICAL) {
-            final Material mat = block.getType();
+            Material mat = block.getType();
             if ((mat != null) && (mat == Material.STONE_PLATE || mat == Material.STONE_BUTTON || mat == Material.WOOD_PLATE || mat == Material.WOOD_BUTTON)) {
                 BlockFace[] bf = {BlockFace.NORTH, BlockFace.SOUTH, BlockFace.WEST, BlockFace.EAST};
                 for (BlockFace face : bf) {
                     Block at = block.getRelative(face);
-                    if (at.getType() == Material.WOODEN_DOOR || at.getType() == Material.IRON_DOOR_BLOCK) {
-                        Block toCheck = null;
-                        if (at.getRelative(BlockFace.UP).getType() != Material.WOODEN_DOOR && at.getRelative(BlockFace.UP).getType() != Material.IRON_DOOR_BLOCK) {
-                            toCheck = at.getRelative(BlockFace.DOWN);
-                        } else if (at.getRelative(BlockFace.DOWN).getType() != Material.WOODEN_DOOR && at.getRelative(BlockFace.DOWN).getType() != Material.IRON_DOOR_BLOCK) {
-                            toCheck = at;
+                    if (this.privateHandler.canBePrivatised(at.getType()) && this.privateHandler.allowedInteraction(at, player) == false) {
+                        // Move the player two blocks back.
+                        Location pLocation = player.getLocation();
+                        Location newLocation = new Location(pLocation.getWorld(), pLocation.getX(), pLocation.getY(), pLocation.getZ(), pLocation.getYaw(), pLocation.getPitch());
+
+                        // Resolve the location to remove/add
+                        float yaw = pLocation.getYaw();
+                        if (yaw > 0 && yaw <= 90) {
+                            // Facing negative X
+                            newLocation.setX(newLocation.getX() + 1);
+                        } else if (yaw > 90 && yaw <= 180) {
+                            // Facing negative z.
+                            newLocation.setZ(newLocation.getZ() + 1);
+                        } else if (yaw > 180 && yaw <= 270) {
+                            // Facing positive x
+                            newLocation.setX(newLocation.getX() - 1);
+                        } else if (yaw > 270 || yaw == 90) {
+                            // Facing positive z.
+                            newLocation.setZ(newLocation.getZ() - 1);
                         }
-                        if (toCheck != null) {
-                            if (this.privateHandler.allowedInteraction(toCheck, player)) {
-                                player.sendMessage(ChatColor.RED + "Døren er privat. Den kan kun åpnes av eieren.");
-                                event.setCancelled(true);
-                                break;
-                            }
-                        }
+
+                        player.teleport(newLocation);
+                        event.setCancelled(true);
+                        return;
                     }
                 }
             }
@@ -423,14 +467,14 @@ public class MinecraftnoPlayerListener implements Listener {
 
             // Doors, handle private item.
             Block down = block.getRelative(BlockFace.DOWN);
-            if ((down != null) && (down.getType() == Material.WOODEN_DOOR) || (down.getType() == Material.IRON_DOOR_BLOCK)) {
-                if (!this.privateHandler.allowedInteraction(down, player)) {
+            if ((down != null) && (this.privateHandler.canBePrivatised(down.getType()))) {
+                if (this.privateHandler.allowedInteraction(down, player) == false) {
                     event.setUseInteractedBlock(Result.DENY);
                     event.setCancelled(true);
                     return;
                 }
-            } else if (block.getType() == Material.WOODEN_DOOR || block.getType() == Material.IRON_DOOR_BLOCK) {
-                if (!this.privateHandler.allowedInteraction(block, player)) {
+            } else if (this.privateHandler.canBePrivatised(block.getType())) {
+                if (this.privateHandler.allowedInteraction(block, player) == false) {
                     event.setUseInteractedBlock(Result.DENY);
                     event.setCancelled(true);
                     return;
@@ -516,10 +560,10 @@ public class MinecraftnoPlayerListener implements Listener {
                     }
                     break;
                 }
-                
+
                 case LAVA_BUCKET:
                 case WATER_BUCKET: {
-                    
+
                     if (block.getType() == Material.RAILS
                      || block.getType() == Material.POWERED_RAIL
                      || block.getType() == Material.ACTIVATOR_RAIL
@@ -527,9 +571,9 @@ public class MinecraftnoPlayerListener implements Listener {
                         event.setCancelled(true);
                         return;
                     }
-                    
+
                     break;
-                }                    
+                }
 
                 case FENCE: {
                     Block space = block.getRelative(event.getBlockFace());
@@ -556,14 +600,14 @@ public class MinecraftnoPlayerListener implements Listener {
 
             // Doors, handle private item.
             Block down = block.getRelative(BlockFace.DOWN);
-            if ((down != null) && (down.getType() == Material.WOODEN_DOOR) || (down.getType() == Material.IRON_DOOR_BLOCK)) {
-                if (!this.privateHandler.allowedInteraction(down, player)) {
+            if ((down != null) && (this.privateHandler.canBePrivatised(down.getType()))) {
+                if (this.privateHandler.allowedInteraction(down, player) == false) {
                     event.setUseInteractedBlock(Result.DENY);
                     event.setCancelled(true);
                     return;
                 }
-            } else if (block.getType() == Material.WOODEN_DOOR || block.getType() == Material.IRON_DOOR_BLOCK) {
-                if (!this.privateHandler.allowedInteraction(block, player)) {
+            } else if (this.privateHandler.canBePrivatised(block.getType())) {
+                if (this.privateHandler.allowedInteraction(block, player) == false) {
                     event.setUseInteractedBlock(Result.DENY);
                     event.setCancelled(true);
                     return;
@@ -734,7 +778,7 @@ public class MinecraftnoPlayerListener implements Listener {
         ConfigurationServer cfg = this.plugin.getGlobalConfiguration();
         int Maxplayers = cfg.maxplayers;
         int OnlinePlayers = plugin.getServer().getOnlinePlayers().size() - 1;
-        
+
         // Plugin do not check for name change before PlayerJoinEvent is called, this can be
         // problematic as players that are banned will be allowed to join because we have
         // not catched up to players new nick. Call updatePlayer here to check & update if
@@ -803,7 +847,7 @@ public class MinecraftnoPlayerListener implements Listener {
 
         this.userHandler.addPlayer(player);
         int access = this.userHandler.getAccess(player);
-        
+
         System.out.println(this.userHandler.hasAdminChatActivated(player));
 
         for (String msg : cfg.srvLogin) {
@@ -938,12 +982,12 @@ public class MinecraftnoPlayerListener implements Listener {
             return;
         } else if ((event.getReason().toLowerCase().contains("flying")) || (event.getReason().toLowerCase().contains("floating"))) {
             this.handleFlymod(event);
-        } else if (event.getReason().equalsIgnoreCase("You have been idle for too long!")) {               
+        } else if (event.getReason().equalsIgnoreCase("You have been idle for too long!")) {
             if (this.userHandler.getAccess(player) < 2) {
                 event.setCancelled(true);
                 return;
             }
-            
+
             event.setReason("Du ble kicket for å være AFK alt for lenge. >=(");
             event.setLeaveMessage(ChatColor.GRAY + player.getName() + " ble kicket for å være afk for lenge.");
         }

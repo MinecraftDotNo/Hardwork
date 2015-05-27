@@ -1,19 +1,23 @@
 package no.minecraft.Minecraftno.handlers.blocks;
 
-import no.minecraft.Minecraftno.Minecraftno;
-import no.minecraft.Minecraftno.handlers.GroupHandler;
-import no.minecraft.Minecraftno.handlers.player.UserHandler;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
+
+import no.minecraft.Minecraftno.Minecraftno;
+import no.minecraft.Minecraftno.handlers.GroupHandler;
+import no.minecraft.Minecraftno.handlers.player.UserHandler;
+
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 
 /**
  * May be changed because of the mysql update tj was talking about.
@@ -27,10 +31,26 @@ public class PrivateProtectionHandler {
     private UserHandler userHandler;
     private GroupHandler groupHandler;
 
+    private List<Material> supportedMaterials;
+
     public PrivateProtectionHandler(Minecraftno instance) {
         this.plugin = instance;
         this.userHandler = instance.getUserHandler();
         this.groupHandler = instance.getGroupHandler();
+
+        this.supportedMaterials = Arrays.asList(
+                // Doors
+                Material.BIRCH_DOOR,
+                Material.SPRUCE_DOOR,
+                Material.JUNGLE_DOOR,
+                Material.DARK_OAK_DOOR,
+                Material.ACACIA_DOOR,
+                Material.WOODEN_DOOR,
+                Material.IRON_DOOR_BLOCK,
+
+                // Chest
+                Material.CHEST
+        );
     }
 
     /**
@@ -51,6 +71,11 @@ public class PrivateProtectionHandler {
      * @return true if success, false if failed.
      */
     public boolean addPrivateItem(int id, Block block, int mode) {
+
+        // Test if the black can be privatised
+        if (this.canBePrivatised(block.getType()) == false)
+            return true; // Pretend a success
+
         Connection conn = null;
         PreparedStatement ps = null;
         try {
@@ -89,6 +114,11 @@ public class PrivateProtectionHandler {
      * @return true if success, false if failed.
      */
     public boolean deletePrivateItem(Block block) {
+
+        // Test if the black can be privatised
+        if (this.canBePrivatised(block.getType()) == false)
+            return true; // Pretend a success
+
         Connection conn = null;
         PreparedStatement ps = null;
         try {
@@ -168,10 +198,16 @@ public class PrivateProtectionHandler {
      * @param block Blokken som skal sjekkes.
      */
     public ArrayList<Integer> getOwnerPrivateItem(Block block) {
+
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
         ArrayList<Integer> result = new ArrayList<Integer>();
+
+        // Test if the black can be privatised
+        if (this.canBePrivatised(block.getType()) == false)
+            return result; // Pretend a success
+
         try {
             conn = this.plugin.getConnection();
             ps = conn.prepareStatement("SELECT `uid`,`type` FROM `privateItems` WHERE `x` = ? AND `y` = ? AND `z` = ? AND `world` = ?");
@@ -211,9 +247,14 @@ public class PrivateProtectionHandler {
      * @param b       The block in question, must be chest or door. (Handled (elns) inside BlockListener)
      * @param remover The remover of the block.
      *
-     * @return <code>true</code> if get to remove it, <code>false</code> if not.
+     * @return <code>true</code> if DO NOT get to remove it, <code>false</code> if do.
      */
     public boolean handlePrivateBlockBreak(Block b, Player remover) {
+
+        // Test if the black can be privatised
+        if (this.canBePrivatised(b.getType()) == false)
+            return false; // Pretend a success
+
         if (this.isPrivateItem(b)) {
             ArrayList<Integer> result = this.getOwnerPrivateItem(b);
             if (result.size() < 0) {
@@ -246,6 +287,11 @@ public class PrivateProtectionHandler {
      * @return <code>true</code> if get to interact it, <code>false</code> if not.
      */
     public boolean allowedInteraction(Block b, Player player) {
+
+        // Test if the black can be privatised
+        if (this.canBePrivatised(b.getType()) == false)
+            return true; // Pretend a success
+
         ArrayList<Integer> result = this.getOwnerPrivateItem(b);
         if (result.size() == 0) {
             return true;
@@ -258,7 +304,18 @@ public class PrivateProtectionHandler {
             player.sendMessage(ChatColor.RED + "Denne blokken er satt som privat " + (mode == 0 ? "av " + ChatColor.WHITE + this.userHandler.getNameFromId(owner) + ChatColor.RED : "for en gruppe som du ikke er medlem av") + " og kan derfor ikke åpnes.");
             return false;
         }
+
         return true;
+    }
+
+    /**
+     * Indicates if a <code>Material</code> can be privatised by /private
+     *
+     * @param mat The <code>Material</code> to test
+     * @return A boolean indicating if the <code>Material</code> can be privatised
+     */
+    public boolean canBePrivatised(Material mat) {
+        return this.supportedMaterials.contains(mat);
     }
 
     /**

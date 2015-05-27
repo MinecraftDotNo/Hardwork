@@ -1,5 +1,9 @@
 package no.minecraft.Minecraftno.listener;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import no.minecraft.Minecraftno.Minecraftno;
 import no.minecraft.Minecraftno.conf.ConfigurationServer;
 import no.minecraft.Minecraftno.conf.ConfigurationWorld;
@@ -21,19 +25,25 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.*;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockBurnEvent;
+import org.bukkit.event.block.BlockDispenseEvent;
+import org.bukkit.event.block.BlockFadeEvent;
+import org.bukkit.event.block.BlockFormEvent;
+import org.bukkit.event.block.BlockFromToEvent;
+import org.bukkit.event.block.BlockIgniteEvent;
+import org.bukkit.event.block.BlockPhysicsEvent;
+import org.bukkit.event.block.BlockPistonExtendEvent;
+import org.bukkit.event.block.BlockPistonRetractEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.LeavesDecayEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.Bed;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class MinecraftnoBlockListener implements Listener {
 
@@ -70,7 +80,7 @@ public class MinecraftnoBlockListener implements Listener {
 				MagicMachineHandler.magicMachin(blockFrom);
 			}
 		}
-		
+
 		else if ((getx >= 455) && (getx <= 478) && (getz <= -210) && (getz >= -234)) {
 			if ((wcfg.MagicMachine)) {
 				MagicMachineHandler.magicMachin(blockFrom);
@@ -90,7 +100,7 @@ public class MinecraftnoBlockListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onDispense(BlockDispenseEvent event) {
         ItemStack item = event.getItem();
-        
+
         Material[] mats = { Material.MONSTER_EGG, Material.EGG, Material.FIREBALL,
                 Material.TNT, Material.LAVA_BUCKET, Material.LAVA, Material.WATER_BUCKET, Material.WATER };
 
@@ -161,7 +171,7 @@ public class MinecraftnoBlockListener implements Listener {
                 event.setCancelled(true);
                 return;
             } else {
-                if (down != null) {                	
+                if (down != null) {
                     int downOwnerId = this.blockinfoHandler.getOwnerId(down);
                     if (down.getType() == Material.DOUBLE_PLANT || down.getType() == Material.WOODEN_DOOR || down.getType() == Material.IRON_DOOR_BLOCK) {
                         // Private item?
@@ -313,7 +323,7 @@ public class MinecraftnoBlockListener implements Listener {
         ConfigurationServer cfg = this.plugin.getGlobalConfiguration();
         Player player = event.getPlayer();
         Block block = event.getBlock();
-        
+
         int access = this.userHandler.getAccess(player);
 
         if (access == 0) {
@@ -634,20 +644,6 @@ public class MinecraftnoBlockListener implements Listener {
                     this.blockHandler.setBlockProtection(getBlockOwnerId, addblock);
                 }
                 add.clear();
-            }
-        }
-    }
-
-    @EventHandler(priority = EventPriority.NORMAL)
-    public void onBlockRedstoneChange(BlockRedstoneEvent event) {
-        /*
-         * Handle private doors, don't let em' be affected by redstone.
-		 */
-        Block block = event.getBlock();
-        if (block.getType() == Material.WOODEN_DOOR || block.getType() == Material.IRON_DOOR_BLOCK) {
-            if (this.privateHandler.isPrivateItem(block)) {
-                event.setNewCurrent(0);
-                return;
             }
         }
     }
