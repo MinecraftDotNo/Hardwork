@@ -487,6 +487,10 @@ public class MinecraftnoPlayerListener implements Listener {
                         event.setCancelled(true);
                         this.blockHandler.setBlocklog(this.userHandler.getUserId(player), block, BlockLogReason.ADMINSTICKED);
                         this.blockHandler.deleteBlockProtection(block);
+
+                        if (this.privateHandler.isPrivateItem(block))
+                            this.privateHandler.deletePrivateItem(block);
+
                         block.setType(Material.AIR);
                         event.setCancelled(true);
                         return;
