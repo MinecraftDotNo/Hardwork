@@ -73,6 +73,8 @@ public class MinecraftnoBlockListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onBlockFromTo(BlockFromToEvent event) {
+        if (event.getToBlock().getType().equals(Material.AIR)) return;
+
         ConfigurationServer cfg = this.plugin.getGlobalConfiguration();
 
 		/*if ((getx >= -63) && (getx <= -48) && (getz >= -27) && (getz <= -12)) {
