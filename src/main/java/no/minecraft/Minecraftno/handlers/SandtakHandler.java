@@ -378,6 +378,9 @@ public class SandtakHandler {
      * @param material    Material id to fill the sandtak with
      */
     public void fillSandtak(String sandtakName, int amountOfDk, Material material) {
+        this.fillSandtak(sandtakName, amountOfDk, material, 0);
+    }
+    public void fillSandtak(String sandtakName, int amountOfDk, Material material, int data) {
         Location pos1 = this.sandtak.get(sandtakName).getPos1();
         Location pos2 = this.sandtak.get(sandtakName).getPos2();
         String worldName = this.sandtak.get(sandtakName).getWorldName();
@@ -414,7 +417,9 @@ public class SandtakHandler {
                     if ((counter / 3456) == amountOfDk) {
                         return;
                     }
-                    this.plugin.getServer().getWorld(worldName).getBlockAt(x, y, z).setType(material);
+                    Block block = this.plugin.getServer().getWorld(worldName).getBlockAt(x, y, z);
+                    block.setType(material);
+                    block.setData((byte) data);
                     counter++;
                 }
             }

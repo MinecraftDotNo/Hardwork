@@ -71,10 +71,14 @@ public class SandtakCommand extends MinecraftnoCommand {
             }
         } else if (args.length == 4) {
             if (args[0].equalsIgnoreCase("fyll") && WarningCommand.canParse(args[2])) {
-                if (args[3].equalsIgnoreCase("snø") || args[3].equalsIgnoreCase("sno")) {
+                if (args[3].equalsIgnoreCase("sand") ||
+                    args[3].equalsIgnoreCase("snow") ||
+                    args[3].equalsIgnoreCase("andesite") ||
+                    args[3].equalsIgnoreCase("diorite") ||
+                    args[3].equalsIgnoreCase("granite")) {
+                    this.fillSandtak(player, args[1], Integer.parseInt(args[2]), args[3].toLowerCase());
+                } else if (args[3].equalsIgnoreCase("snø") || args[3].equalsIgnoreCase("sno")) {
                     this.fillSandtak(player, args[1], Integer.parseInt(args[2]), "snow");
-                } else if (args[3].equalsIgnoreCase("sand")) {
-                    this.fillSandtak(player, args[1], Integer.parseInt(args[2]), "sand");
                 } else {
                     player.sendMessage(getErrorChatColor() + "Feil bruk av kommandoen.");
                 }
@@ -96,7 +100,7 @@ public class SandtakCommand extends MinecraftnoCommand {
     private void displayMenu(Player player) {
         player.sendMessage(getDefaultChatColor() + "/" + getCommandChatColor() + "sandtak liste" + getVarChatColor() + " - Viser en liste over alle sandtak.");
         player.sendMessage(getDefaultChatColor() + "/" + getCommandChatColor() + "sandtak lagre" + getVarChatColor() + " - Lagrer en dobbelkiste for fremtidig bruk i et sandtak.");
-        player.sendMessage(getDefaultChatColor() + "/" + getCommandChatColor() + "sandtak fyll <navn> [antall] [snø]" + getVarChatColor() + " - Fyller et sandtak med sand (eller snø dersom du ber om det). Du kan også angi antall dobbelkister taket skal fylles med.");
+        player.sendMessage(getDefaultChatColor() + "/" + getCommandChatColor() + "sandtak fyll <navn> [antall] [snø]" + getVarChatColor() + " - Fyller et sandtak med sand (eller snø, andesite, diorite, eller granite dersom du ber om det). Du kan også angi antall dobbelkister taket skal fylles med.");
         player.sendMessage(getDefaultChatColor() + "/" + getCommandChatColor() + "sandtak status" + getVarChatColor() + " - Viser hvor mange dobbelkister du har lagret som kan brukes i forbindelse med sandtak.");
         if (this.userHandler.getAccess(player) >= 4) {
             player.sendMessage(getDefaultChatColor() + "/" + getCommandChatColor() + "sandtak ny <navn>" + getVarChatColor() + " - Oppretter et nytt sandtak på det markerte området.");
@@ -160,7 +164,7 @@ public class SandtakCommand extends MinecraftnoCommand {
         int statusCobbleStone = this.sandtakHandler.getSandtakInventoryStatus(player.getName(), Material.COBBLESTONE);
         if (statusStone != -1 && statusCobbleStone != -1) {
             player.sendMessage(getDefaultChatColor() + "Du har " + getVarChatColor() + statusCobbleStone + getDefaultChatColor() + " dobbelkister klar til bruk for sandtak med sand.");
-            player.sendMessage(getDefaultChatColor() + "Du har " + getVarChatColor() + statusStone + getDefaultChatColor() + " dobbelkister klar til bruk for sandtak med snø.");
+            player.sendMessage(getDefaultChatColor() + "Du har " + getVarChatColor() + statusStone + getDefaultChatColor() + " dobbelkister klar til bruk for sandtak med snø, andesite, diorite, eller granite.");
         } else {
             player.sendMessage(getErrorChatColor() + "Klarte ikke å hente informasjon om hvor mange dobbelkister du har lagret.");
         }
@@ -190,23 +194,47 @@ public class SandtakCommand extends MinecraftnoCommand {
                     int amount = 0;
                     Material materialId = Material.COBBLESTONE; // cobblestone, used for sand
                     Material sandtakMaterialId = Material.SAND; // sand by default
+                    int sandtakDataId = 0;
+
                     if (amountOfDk == 0) {
                         amount = this.sandtakHandler.getSandtakMap().get(realSandtakName).getSize();
                     } else {
                         amount = amountOfDk;
                     }
 
-                    if (type.equals("snow")) {
-                        materialId = Material.STONE; // stone, used for snow
-                        sandtakMaterialId = Material.SNOW_BLOCK; // snow
+                    switch (type) {
+                        case "snow":
+                            materialId = Material.STONE;
+                            sandtakMaterialId = Material.SNOW_BLOCK;
+                            sandtakDataId = 0;
+                            break;
+
+                        case "andesite":
+                            materialId = Material.STONE;
+                            sandtakMaterialId = Material.STONE;
+                            sandtakDataId = 5;
+                            break;
+
+                        case "diorite":
+                            materialId = Material.STONE;
+                            sandtakMaterialId = Material.STONE;
+                            sandtakDataId = 3;
+                            break;
+
+                        case "granite":
+                            materialId = Material.STONE;
+                            sandtakMaterialId = Material.STONE;
+                            sandtakDataId = 1;
+                            break;
                     }
+
                     int playerInventoryAmount = this.sandtakHandler.getSandtakInventoryStatus(player.getName(), materialId);
 
                     if (playerInventoryAmount >= amount) {
                         int sandtakSize = this.sandtakHandler.getSandtakMap().get(realSandtakName).getSize();
                         if (amount <= sandtakSize) {
                             if (this.sandtakHandler.removeDksFromPlayerSandtakInventory(player.getName(), amount, materialId)) {
-                                this.sandtakHandler.fillSandtak(realSandtakName, amount, sandtakMaterialId);
+                                this.sandtakHandler.fillSandtak(realSandtakName, amount, sandtakMaterialId, sandtakDataId);
                                 player.sendMessage(getOkChatColor() + "Sandtaket har blitt fylt opp.");
                                 this.plugin.getLogHandler().log(this.plugin.getUserHandler().getUserId(player), 0, 0, 0, realSandtakName, MinecraftnoLog.SANDTAKFILL);
                                 this.plugin.getIrcBot().sendMessage("#hardwork.logg", player.getName() + " fylte opp et sandtak. Navn: " + realSandtakName + ". Sandtaket ble fylt med " + amount + " dobbelkister og med materialet " + type + ".");
