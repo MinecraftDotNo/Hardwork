@@ -45,10 +45,8 @@ public class Minecraftno extends JavaPlugin {
     private Timer timer;
 
     // SQL
-    private boolean sqlConnected;
     private final MySQLHandler sqlHandler = new MySQLHandler(this);
     private final LogHandler logHandler = new LogHandler(this);
-    private MySQLConnectionPool sqlc;
 
     // LogHandlersThreads
     private final BlockHandler blockHandler = new BlockHandler(this);
@@ -206,11 +204,6 @@ public class Minecraftno extends JavaPlugin {
             }
         }
 
-        if (sqlc != null) {
-            this.getLogger().info(" - Closing SQL connection...");
-            sqlc.close();
-        }
-
         this.getLogger().info(" - Cancelling scheduled tasks...");
         getServer().getScheduler().cancelAllTasks();
 
@@ -236,46 +229,22 @@ public class Minecraftno extends JavaPlugin {
     }
 
     public boolean sqlConnection() {
-        try {
-            sqlc = new MySQLConnectionPool(this.configuration.dbhost, this.configuration.dbport, this.configuration.dbname, this.configuration.dbuser, this.configuration.dbpass);
-
-            // Create a connection to test for success...
-            final Connection conn = getConnection();
-            if (conn == null) {
-                this.getLogger().severe("Could not connect to SQL server!");
-                this.getServer().shutdown();
-
-                return false;
-            }
-
-            conn.close();
-            sqlConnected = true;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        return sqlConnected;
+        return this.hardwork.getDatabase().getConnection() != null;
     }
 
     public Connection getConnection() {
-        try {
-            final Connection conn = sqlc.getConnection();
+        Connection connection = this.hardwork.getDatabase().getConnection();
 
-            if (!sqlConnected && conn != null) {
-                this.getLogger().info("SQL connection re-established.");
-                sqlConnected = true;
+        // Legacy queries expect this database to be selected.
+        if (connection != null) {
+            try {
+                connection.setCatalog("Hardwork");
+            } catch (SQLException exception) {
+                exception.printStackTrace();
             }
-
-            return conn;
-        } catch (final Exception e) {
-            sqlConnected = false;
-
-            this.getLogger().severe("Could not fetch SQL connection! " + e.getMessage());
-
-            return null;
         }
+
+        return connection;
     }
 
     public void registerCommands() {
