@@ -23,5 +23,6 @@ irc:
 mysql:
   hostname: localhost
   port: 3306
+  schema: minecraft
   username: root
   password: abc123

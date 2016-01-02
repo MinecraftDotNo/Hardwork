@@ -11,6 +11,7 @@ public class Database {
 
     private final String hostname;
     private final int port;
+    private final String schema;
     private final String username;
     private final String password;
 
@@ -18,13 +19,14 @@ public class Database {
 
     private PreparedStatement testSelect;
 
-    public Database(JavaPlugin plugin, DataConsumer consumer, String hostname, int port, String username, String password) {
+    public Database(JavaPlugin plugin, DataConsumer consumer, String hostname, int port, String schema, String username, String password) {
         this.plugin = plugin;
 
         this.consumer = consumer;
 
         this.hostname = hostname;
         this.port = port;
+        this.schema = schema;
         this.username = username;
         this.password = password;
     }
@@ -35,19 +37,28 @@ public class Database {
                 if (this.connection.isClosed())
                     throw new SQLException("An existing connection was closed.");
 
+                if (this.testSelect == null || this.testSelect.isClosed())
+                    throw new SQLException("Unable to perform test query.");
+
                 ResultSet result = this.testSelect.executeQuery();
                 if (result.next())
                     return this.connection;
-            } catch (SQLException ignored) { }
+            } catch (Exception ignored) {
+                this.plugin.getLogger().info("Database connection lost: " + ignored.getMessage());
+            }
 
             // It wasn't null, but we couldn't use it. Be gone, evildoer!
+            try {
+                this.connection.close();
+            } catch (SQLException ignored) { }
+
             this.connection = null;
         }
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
             this.connection = DriverManager.getConnection(
-                "jdbc:mysql://" + this.hostname + ":" + this.port,
+                "jdbc:mysql://" + this.hostname + ":" + this.port + "/" + this.schema,
                 this.username,
                 this.password
             );

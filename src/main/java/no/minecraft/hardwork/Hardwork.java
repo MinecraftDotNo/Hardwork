@@ -70,6 +70,7 @@ public class Hardwork implements DataConsumer {
                 this,
                 this.plugin.getConfig().getString("mysql.hostname"),
                 this.plugin.getConfig().getInt("mysql.port"),
+                this.plugin.getConfig().getString("mysql.schema"),
                 this.plugin.getConfig().getString("mysql.username"),
                 this.plugin.getConfig().getString("mysql.password")
             );
