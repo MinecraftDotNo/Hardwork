@@ -68,7 +68,7 @@ public class SandtakHandler {
                     rs.close();
                 }
                 if (conn != null) {
-                    conn.close();
+                    //conn.close();
                 }
             } catch (SQLException e) {
                 Minecraftno.log.log(Level.SEVERE, "SQL-error:", e);
@@ -135,7 +135,7 @@ public class SandtakHandler {
                     ps.close();
                 }
                 if (conn != null) {
-                    conn.close();
+                    //conn.close();
                 }
             } catch (SQLException e) {
                 Minecraftno.log.log(Level.SEVERE, "SQL-error:", e);
@@ -169,7 +169,7 @@ public class SandtakHandler {
                     ps.close();
                 }
                 if (conn != null) {
-                    conn.close();
+                    //conn.close();
                 }
             } catch (SQLException e) {
                 Minecraftno.log.log(Level.SEVERE, "SQL-error:", e);
@@ -223,7 +223,7 @@ public class SandtakHandler {
                     rs.close();
                 }
                 if (conn != null) {
-                    conn.close();
+                    //conn.close();
                 }
             } catch (SQLException e) {
                 Minecraftno.log.log(Level.SEVERE, "SQL-error:", e);
@@ -269,7 +269,7 @@ public class SandtakHandler {
                     ps2.close();
                 }
                 if (conn != null) {
-                    conn.close();
+                    //conn.close();
                 }
             } catch (SQLException e) {
                 Minecraftno.log.log(Level.SEVERE, "SQL-error:", e);
@@ -307,7 +307,7 @@ public class SandtakHandler {
                     ps.close();
                 }
                 if (conn != null) {
-                    conn.close();
+                    //conn.close();
                 }
             } catch (SQLException e) {
                 Minecraftno.log.log(Level.SEVERE, "SQL-error:", e);

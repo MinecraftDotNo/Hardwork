@@ -273,7 +273,7 @@ public class UserHandler {
                     rs.close();
                 }
                 if (conn != null) {
-                    conn.close();
+                    //conn.close();
                 }
             } catch (SQLException ex) {
                 Minecraftno.log.log(Level.SEVERE, "[Minecraftno] SQL Exception (under lukking)", ex);
@@ -306,7 +306,7 @@ public class UserHandler {
                     rs.close();
                 }
                 if (conn != null) {
-                    conn.close();
+                    //conn.close();
                 }
             } catch (SQLException ex) {
                 Minecraftno.log.log(Level.SEVERE, "[Minecraftno] SQL Exception (under lukking)", ex);
@@ -353,7 +353,7 @@ public class UserHandler {
                     rs.close();
                 }
                 if (conn != null) {
-                    conn.close();
+                    //conn.close();
                 }
             } catch (SQLException ex) {
                 Minecraftno.log.log(Level.SEVERE, "[Minecraftno] SQL Exception (under lukking)", ex);
@@ -855,7 +855,7 @@ public class UserHandler {
                     rs.close();
                 }
                 if (conn != null) {
-                    conn.close();
+                    //conn.close();
                 }
             } catch (SQLException e) {
                 Minecraftno.log.log(Level.SEVERE, "SQL-error:", e);
@@ -901,7 +901,7 @@ public class UserHandler {
                     rs.close();
                 }
                 if (conn != null) {
-                    conn.close();
+                    //conn.close();
                 }
             } catch (SQLException e) {
                 Minecraftno.log.log(Level.SEVERE, "SQL-error:", e);
@@ -981,7 +981,7 @@ public class UserHandler {
                     rs.close();
                 }
                 if (conn != null) {
-                    conn.close();
+                    //conn.close();
                 }
             } catch (SQLException e) {
                 Minecraftno.log.log(Level.SEVERE, "SQL-error:", e);

@@ -86,7 +86,7 @@ public class BlockInfoHandler {
                         rs.close();
                     }
                     if (conn != null) {
-                        conn.close();
+                        //conn.close();
                     }
                 } catch (SQLException e) {
                     Minecraftno.log.log(Level.SEVERE, "SQL-error:", e);
@@ -119,7 +119,7 @@ public class BlockInfoHandler {
                     ps.close();
                 }
                 if (conn != null) {
-                    conn.close();
+                    //conn.close();
                 }
             } catch (SQLException e) {
                 Minecraftno.log.log(Level.SEVERE, "SQL-error:", e);
@@ -148,7 +148,7 @@ public class BlockInfoHandler {
                     ps.close();
                 }
                 if (conn != null) {
-                    conn.close();
+                    //conn.close();
                 }
             } catch (SQLException e) {
                 Minecraftno.log.log(Level.SEVERE, "SQL-error:", e);

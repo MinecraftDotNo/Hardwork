@@ -15,7 +15,6 @@ import no.minecraft.Minecraftno.handlers.scheduler.SpawnProtection;
 import no.minecraft.Minecraftno.handlers.scheduler.WorldBackup;
 import no.minecraft.Minecraftno.irc.IRCBot;
 import no.minecraft.Minecraftno.listener.*;
-import no.minecraft.Minecraftno.sql.MySQLConnectionPool;
 import no.minecraft.hardwork.Hardwork;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -229,22 +228,11 @@ public class Minecraftno extends JavaPlugin {
     }
 
     public boolean sqlConnection() {
-        return this.hardwork.getDatabase().getConnection() != null;
+        return this.getConnection() != null;
     }
 
     public Connection getConnection() {
-        Connection connection = this.hardwork.getDatabase().getConnection();
-
-        // Legacy queries expect this database to be selected.
-        if (connection != null) {
-            try {
-                connection.setCatalog("Hardwork");
-            } catch (SQLException exception) {
-                exception.printStackTrace();
-            }
-        }
-
-        return connection;
+        return this.hardwork.getDatabase().getConnection();
     }
 
     public void registerCommands() {

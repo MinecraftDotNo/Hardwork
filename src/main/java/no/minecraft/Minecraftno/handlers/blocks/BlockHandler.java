@@ -188,7 +188,7 @@ public class BlockHandler extends TimerTask {
                     setLog.close();
                 }
                 if (conn != null) {
-                    conn.close();
+                    //conn.close();
                 }
             } catch (final SQLException ex) {
                 Minecraftno.log.log(Level.SEVERE, "[Minecraftno] SQL exception on close", ex);

@@ -342,7 +342,7 @@ public class LogHandler {
                     ps.close();
                 }
                 if (conn != null) {
-                    conn.close();
+                    //conn.close();
                 }
             } catch (SQLException e) {
                 Minecraftno.log.log(Level.SEVERE, "SQL-error:", e);

@@ -83,7 +83,7 @@ public class MySQLHandler {
                         ps.close();
                     }
                     if (conn != null) {
-                        conn.close();
+                        //conn.close();
                     }
                 } catch (SQLException e) {
                     Minecraftno.log.log(Level.SEVERE, "SQL-error:", e);
@@ -120,7 +120,7 @@ public class MySQLHandler {
                     stmt.close();
                 }
                 if (conn != null) {
-                    conn.close();
+                    //conn.close();
                 }
             } catch (SQLException e) {
                 Minecraftno.log.log(Level.SEVERE, "SQL-error:", e);
@@ -163,7 +163,7 @@ public class MySQLHandler {
                     rs.close();
                 }
                 if (conn != null) {
-                    conn.close();
+                    //conn.close();
                 }
             } catch (SQLException e) {
                 Minecraftno.log.log(Level.SEVERE, "SQL-error:", e);
@@ -206,7 +206,7 @@ public class MySQLHandler {
                     rs.close();
                 }
                 if (conn != null) {
-                    conn.close();
+                    //conn.close();
                 }
             } catch (SQLException e) {
                 Minecraftno.log.log(Level.SEVERE, "SQL-error:", e);
@@ -264,7 +264,7 @@ public class MySQLHandler {
                         rs.close();
                     }
                     if (conn != null) {
-                        conn.close();
+                        //conn.close();
                     }
                 } catch (SQLException e) {
                     Minecraftno.log.log(Level.SEVERE, "SQL-error:", e);
@@ -311,7 +311,7 @@ public class MySQLHandler {
                     rs.close();
                 }
                 if (conn != null) {
-                    conn.close();
+                    //conn.close();
                 }
             } catch (SQLException e) {
                 Minecraftno.log.log(Level.SEVERE, "SQL-error:", e);
@@ -377,7 +377,7 @@ public class MySQLHandler {
                         rs.close();
                     }
                     if (conn != null) {
-                        conn.close();
+                        //conn.close();
                     }
                 } catch (SQLException e) {
                     Minecraftno.log.log(Level.SEVERE, "SQL-error:", e);

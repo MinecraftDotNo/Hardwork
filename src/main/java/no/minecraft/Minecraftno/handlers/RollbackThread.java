@@ -97,12 +97,12 @@ public class RollbackThread implements Runnable {
                     Minecraftno.log.log(Level.SEVERE, "[Minecraftno] SQL-feil:", e);
                 }
             }
-            try {
+            /*try {
                 conn.close();
             } catch (SQLException e) {
                 // TODO Auto-generated catch block
                 Minecraftno.log.log(Level.SEVERE, "[Minecraftno] SQL-feil:", e);
-            }
+            }*/
         }
     }
 }

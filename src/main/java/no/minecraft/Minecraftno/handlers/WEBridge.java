@@ -112,7 +112,7 @@ public class WEBridge {
                         logPS.close();
                     }
                     if (conn != null) {
-                        conn.close();
+                        //conn.close();
                     }
                 } catch (SQLException e) {
                     e.printStackTrace();

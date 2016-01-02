@@ -196,7 +196,7 @@ public class GroupHandler {
                     rs.close();
                 }
                 if (conn != null) {
-                    conn.close();
+                    //conn.close();
                 }
             } catch (SQLException e) {
                 Minecraftno.log.log(Level.SEVERE, "SQL-error:", e);
@@ -318,7 +318,7 @@ public class GroupHandler {
                     ps.close();
                 }
                 if (conn != null) {
-                    conn.close();
+                    //conn.close();
                 }
             } catch (SQLException e) {
                 Minecraftno.log.log(Level.SEVERE, "SQL-error:", e);
@@ -723,7 +723,7 @@ public class GroupHandler {
                     rs.close();
                 }
                 if (conn != null) {
-                    conn.close();
+                    //conn.close();
                 }
             } catch (SQLException e) {
                 Minecraftno.log.log(Level.SEVERE, "SQL-error:", e);
@@ -807,7 +807,7 @@ public class GroupHandler {
                     rs.close();
                 }
                 if (conn != null) {
-                    conn.close();
+                    //conn.close();
                 }
             } catch (SQLException e) {
                 Minecraftno.log.log(Level.SEVERE, "SQL-error:", e);
@@ -854,7 +854,7 @@ public class GroupHandler {
                         rs.close();
                     }
                     if (conn != null) {
-                        conn.close();
+                        //conn.close();
                     }
                 } catch (SQLException e) {
                     Minecraftno.log.log(Level.SEVERE, "SQL-error:", e);
@@ -895,7 +895,7 @@ public class GroupHandler {
                     rs.close();
                 }
                 if (conn != null) {
-                    conn.close();
+                    //conn.close();
                 }
             } catch (SQLException e) {
                 Minecraftno.log.log(Level.SEVERE, "SQL-error:", e);
@@ -934,7 +934,7 @@ public class GroupHandler {
                     rs.close();
                 }
                 if (conn != null) {
-                    conn.close();
+                    //conn.close();
                 }
             } catch (SQLException e) {
                 Minecraftno.log.log(Level.SEVERE, "SQL-error:", e);
@@ -1014,7 +1014,7 @@ public class GroupHandler {
                     rs.close();
                 }
                 if (conn != null) {
-                    conn.close();
+                    //conn.close();
                 }
             } catch (SQLException e) {
                 Minecraftno.log.log(Level.SEVERE, "SQL-error:", e);
@@ -1116,7 +1116,7 @@ public class GroupHandler {
                         rs.close();
                     }
                     if (conn != null) {
-                        conn.close();
+                        //conn.close();
                     }
                 } catch (SQLException e) {
                     Minecraftno.log.log(Level.SEVERE, "SQL-error:", e);
@@ -1147,7 +1147,7 @@ public class GroupHandler {
                         rs.close();
                     }
                     if (conn != null) {
-                        conn.close();
+                        //conn.close();
                     }
                 } catch (SQLException e) {
                     Minecraftno.log.log(Level.SEVERE, "SQL-error:", e);
