@@ -24,7 +24,7 @@ public class StuckCommand extends MinecraftnoCommand {
                     if (loc.getBlockY() > player.getLocation().getBlockY()) {
                         player.teleport(loc);
                     } else {
-                        player.sendMessage(getErrorChatColor() + "Det er ingen block over deg.");
+                        player.sendMessage(getErrorChatColor() + "Det er ingen blokk over deg.");
                     }
                 } else {
                     player.sendMessage(getErrorChatColor() + "Du kan ikke bruke denne kommandoen i nether!");
