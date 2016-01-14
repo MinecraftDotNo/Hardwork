@@ -251,7 +251,7 @@ public class MinecraftnoPlayerListener implements Listener {
         	}
 
         	if (!owner.equalsIgnoreCase("ingen") && !owner.equalsIgnoreCase(player.getName())) {
-        		player.sendMessage(ChatColor.RED + "Denne hesten er eid av " + ChatColor.WHITE + owner + ChatColor.RED + " så du kan ikke interakte med den.");
+        		player.sendMessage(ChatColor.RED + "Du kan ikke bruke denne hesten fordi " + ChatColor.WHITE + owner + ChatColor.RED + " eier den.");
         		event.setCancelled(true);
         		return;
         	}
