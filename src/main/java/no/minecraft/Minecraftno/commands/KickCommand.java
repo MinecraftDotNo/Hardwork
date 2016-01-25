@@ -20,6 +20,13 @@ public class KickCommand extends MinecraftnoCommand {
 
     @Override
     public final boolean onPlayerCommand(Player player, Command command, String label, String[] args) {
+        
+        // Make sure an username is defined
+        if (args.length == 0) {
+            // Show the command usage from plugin.yml
+            return false;
+        }
+        
         String msg = "Ingen grunn oppgitt, vi trenger ikke en.";
         if (args.length > 1) {
             StringBuilder build = new StringBuilder();
