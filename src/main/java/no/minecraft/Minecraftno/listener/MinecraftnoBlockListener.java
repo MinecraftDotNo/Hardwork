@@ -104,7 +104,7 @@ public class MinecraftnoBlockListener implements Listener {
         ItemStack item = event.getItem();
 
         Material[] mats = { Material.MONSTER_EGG, Material.EGG, Material.FIREBALL,
-                Material.TNT, Material.LAVA_BUCKET, Material.LAVA, Material.WATER_BUCKET, Material.WATER };
+                Material.TNT/*, Material.LAVA_BUCKET, Material.LAVA, Material.WATER_BUCKET, Material.WATER*/ };
 
         for (Material mat : mats) {
         	if (mat == item.getType()) {
